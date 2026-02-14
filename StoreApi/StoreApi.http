@@ -1,0 +1,29 @@
+@rootURL = http://localhost:5167
+
+GET {{rootURL}}/api/product
+Accept: application/json
+
+###
+GET {{rootURL}}/api/product/3
+Accept: application/json
+
+###
+POST {{rootURL}}/api/product
+Content-Type: application/json
+{
+  "Name": "Product4", 
+  "Category": "Accesories", 
+  "Price": 100000
+}
+
+###
+PUT {{rootURL}}/api/product/3
+Content-Type: application/json
+{
+  "Name": "Phone", 
+  "Category": "Electronics", 
+  "Price": 2000
+}
+
+###
+DELETE {{rootURL}}/api/product/4
