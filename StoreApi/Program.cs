@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using StoreApi.Data;
 using StoreApi.Exceptions;
 using StoreApi.Services;
 
@@ -7,7 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<StoreApi.Services.IProductService, StoreApi.Services.ProductService>();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

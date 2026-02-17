@@ -1,82 +1,176 @@
-﻿using StoreApi.DTOs;
+﻿using StoreApi.Data;
+using StoreApi.DTOs;
 using StoreApi.Models;
 using StoreApi.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace StoreApi.Services
 {
     public class ProductService : IProductService
     {
-        private static List<Product> _products = new List<Product>
-            {
-                new Product { Id = 1, Name = "Laptop", Category = "Electronics", Price = 1000 },
-                new Product { Id = 2, Name = "Mouse", Category = "Accessories", Price = 50 }
-            };
+        private readonly AppDbContext _context;
+
+        public ProductService(AppDbContext context)
+        {
+            _context = context;
+        }
         public List<ProductReadDto> GetAll()
         {
-            return _products.Select(p => new ProductReadDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Category = p.Category,
-                Price = p.Price
-            }).ToList();
+            var products = _context.Products
+                .Include(pr => pr.ProductSeo)
+                .Include(pr => pr.Category)
+                .Include(pr => pr.Tags)
+                .ToList();
+
+            return products.Select(p => new ProductReadDto(
+                p.Id,
+                p.Name,
+                p.Tags?.Select(t => t.Name).ToList(),
+                p.CategoryId,
+                p.Category?.Name,
+                p.Price,
+                p.ProductSeo is not null ? new ProductSeoReadDto(
+                    p.ProductSeo!.MetaTitle,
+                    p.ProductSeo.MetaDescription,
+                    p.ProductSeo.Slug,
+                    p.ProductSeo.OpenGraphImageUrl
+                ) : null
+            )).ToList();
         }
         public ProductReadDto? GetById(int id)
         {
-            var product = _products.FirstOrDefault(x => x.Id == id);
+            var product = _context.Products
+                .Include(pr => pr.Category)
+                .Include(pr => pr.Tags)
+                .Include(pr => pr.ProductSeo)
+                .FirstOrDefault(x => x.Id == id);
 
-            if (product == null) 
-                throw new NotFoundException($"User with ID {id} was not found.");
+            if (product is null)
+                throw new NotFoundException($"Product with ID {id} was not found.");
 
-            return new ProductReadDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Category = product.Category,
-                Price = product.Price
-            };
+            return new ProductReadDto(
+                product.Id,
+                product.Name,
+                product.Tags?.Select(t => t.Name).ToList(),
+                product.CategoryId,
+                product.Category?.Name,
+                product.Price,
+                product.ProductSeo is not null ? new ProductSeoReadDto(
+                    product.ProductSeo!.MetaTitle,
+                    product.ProductSeo.MetaDescription,
+                    product.ProductSeo.Slug,
+                    product.ProductSeo.OpenGraphImageUrl
+                ) : null
+            );
         }
         public ProductReadDto Create(ProductCreateDto dto)
         {
-
             var newProduct = new Product
             {
-                Id = (_products.Max(x => x.Id) + 1),
                 Name = dto.Name,
-                Category = dto.Category,
-                Price = dto.Price
+                CategoryId = dto.CategoryId,
+                Price = dto.Price!.Value
             };
-            _products.Add(newProduct);
 
-            return new ProductReadDto
+            var tags = dto.TagIds is not null ? _context.Tags
+                .Where(t => dto.TagIds.Contains(t.Id))
+                .ToList() : null;
+
+            newProduct.Tags = tags;
+
+            newProduct.ProductSeo = dto.ProductSeo is not null ? new ProductSeo
             {
-                Id = newProduct.Id,
-                Name = newProduct.Name,
-                Category = newProduct.Category,
-                Price = newProduct.Price
-            };
+                Product = newProduct,
+                MetaTitle = dto.ProductSeo.MetaTitle,
+
+                MetaDescription = dto.ProductSeo.MetaDescription,
+                Slug = dto.ProductSeo.Slug,
+                OpenGraphImageUrl = dto.ProductSeo.OpenGraphImageUrl
+            } : null;
+
+            _context.Products.Add(newProduct);
+            _context.SaveChanges();
+
+            var CategoryName = _context.Categories
+                .Where(c => c.Id == newProduct.CategoryId)
+                .Select(c => c.Name)
+                .FirstOrDefault();
+
+            return new ProductReadDto(
+                newProduct.Id,
+                newProduct.Name,
+                tags?.Select(t => t.Name).ToList(),
+                newProduct.CategoryId,
+                CategoryName,
+                newProduct.Price,
+                new ProductSeoReadDto(
+                    newProduct.ProductSeo!.MetaTitle,
+                    newProduct.ProductSeo.MetaDescription,
+                    newProduct.ProductSeo.Slug,
+                    newProduct.ProductSeo.OpenGraphImageUrl
+                )
+            );
         }
         public void Update(int id, ProductUpdateDto dto)
         {
-            var index = _products.FindIndex(pr => pr.Id == id);
+            var product = _context.Products
+                .Include(pr => pr.Tags)
+                .Include(pr => pr.ProductSeo)
+                .FirstOrDefault(pr => pr.Id == id);
 
-            if (index == -1)
-                throw new NotFoundException($"User with ID {id} was not found.");
-
-            var product = _products[index];
+            if (product is null)
+                throw new NotFoundException($"Product with ID {id} was not found.");
 
             product.Name = dto.Name ?? product.Name;
-            product.Category = dto.Category ?? product.Category;
+            product.CategoryId = dto.CategoryId ?? product.CategoryId;
             product.Price = dto.Price.HasValue ? dto.Price.Value : product.Price;
+
+            if (dto.TagIds is not null)
+            {
+                var newTags = _context.Tags
+                    .Where(t => dto.TagIds.Contains(t.Id))
+                    .ToList();
+
+                product.Tags?.Clear();
+
+                product.Tags?.AddRange(newTags);
+            }
+
+            var seoDto = dto.ProductSeo;
+            var existingSeo = product.ProductSeo;
+            if (dto.ProductSeo is not null)
+            {
+                if (product.ProductSeo is not null)
+                {
+                    existingSeo.MetaTitle = seoDto.MetaTitle;
+                    existingSeo.MetaDescription = seoDto.MetaDescription;
+                    existingSeo.Slug = seoDto.Slug;
+                    existingSeo.OpenGraphImageUrl = seoDto.OpenGraphImageUrl;
+                }
+                else
+                {
+                    product.ProductSeo = new ProductSeo
+                    {
+                        MetaTitle = seoDto.MetaTitle,
+                        MetaDescription = seoDto.MetaDescription,
+                        Slug = seoDto.Slug,
+                        OpenGraphImageUrl = seoDto.OpenGraphImageUrl
+                    };
+                }
+
+            }
+
+            _context.SaveChanges();
         }
         public void Delete(int id)
         {
-            var realProduct = _products.FirstOrDefault(p => p.Id == id);
+            var realProduct = _context.Products.FirstOrDefault(p => p.Id == id);
 
-            if (realProduct == null)
-                throw new NotFoundException($"User with ID {id} was not found.");
+            if (realProduct is null)
+                throw new NotFoundException($"Product with ID {id} was not found.");
 
-            _products.Remove(realProduct);
+            _context.Products.Remove(realProduct);
+            _context.SaveChanges();
         }
     }
 }

@@ -32,7 +32,7 @@ namespace StoreApi.Controllers
         [HttpPost]
         public ActionResult<ProductReadDto> AddProduct(ProductCreateDto dto)
         {
-            if (dto == null)
+            if (dto is null)
                 throw new BadRequestException("Bad data.");
 
             var result = _service.Create(dto);
@@ -43,7 +43,7 @@ namespace StoreApi.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, ProductUpdateDto dto)
         {
-            if (dto == null)
+            if (dto is null)
                 throw new BadRequestException("Bad data.");
 
             _service.Update(id, dto);

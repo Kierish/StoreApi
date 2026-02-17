@@ -11,19 +11,30 @@ Accept: application/json
 POST {{rootURL}}/api/product
 Content-Type: application/json
 {
-  "Name": "Product4", 
-  "Category": "Accesories", 
-  "Price": 100000
+  "Name": "IPhone", 
+  "TagIds": [2, 3],
+  "CategoryId": 1, 
+  "Price": 1000,
+  "ProductSeo": {
+    "MetaTitle": "IPhone 15 Pro Max - Best Deal",
+    "MetaDescription": "Buy the latest IPhone at the best price.",
+    "Slug": "iphone-15-pro-max",
+    "OpenGraphImageUrl": "https://example.com/iphone.jpg"
+  }
 }
 
 ###
-PUT {{rootURL}}/api/product/3
+PUT {{rootURL}}/api/product/2
 Content-Type: application/json
 {
-  "Name": "Phone", 
-  "Category": "Electronics", 
-  "Price": 2000
+  "TagIds": [3],
+  "ProductSeo": {
+    "MetaTitle": "IPhone 15 Pro Max - Best Deal",
+    "MetaDescription": "Buy the latest IPhone at the best price.",
+    "Slug": "iphone-15-pro-max",
+    "OpenGraphImageUrl": "https://example.com/iphone.jpg"
+  }
 }
 
 ###
-DELETE {{rootURL}}/api/product/4
+DELETE {{rootURL}}/api/product/9
