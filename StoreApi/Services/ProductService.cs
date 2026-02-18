@@ -24,52 +24,48 @@ namespace StoreApi.Services
                 .Include(pr => pr.ProductSeo);
         }
 
-        public List<ProductReadDto> GetAll()
+        public async Task<List<ProductReadDto>> GetAllAsync()
         {
-            var products = GetProductWithIncludes();
+            var products = await GetProductWithIncludes().ToListAsync();
 
             return products.Select(p => p.ToReadDto()).ToList();
         }
-        public ProductReadDto? GetById(int id)
+        public async Task<ProductReadDto?> GetByIdAsync(int id)
         {
-            var product = GetProductWithIncludes()
-                .FirstOrDefault(x => x.Id == id);
+            var product = await GetProductWithIncludes()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (product is null)
                 throw new NotFoundException($"Product with ID {id} was not found.");
 
             return product.ToReadDto();
         }
-        public ProductReadDto Create(ProductCreateDto dto)
+        public async Task<ProductReadDto> CreateAsync(ProductCreateDto dto)
         {
             var newProduct = dto.ToEntity();
 
-            newProduct.Category = _context.Categories
-                .Where(c => c.Id == newProduct.CategoryId)
-                .FirstOrDefault();
-
             if (dto.TagIds is not null)
             {
-                newProduct.Tags = _context.Tags
+                newProduct.Tags = await _context.Tags
                     .Where(t => dto.TagIds.Contains(t.Id))
-                    .ToList();
+                    .ToListAsync();
             }
 
             newProduct.ProductSeo = dto.ProductSeo?.ToEntity();
 
             _context.Products.Add(newProduct);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            _context.Entry(newProduct)
+            await _context.Entry(newProduct)
                 .Reference(pr => pr.Category)
-                .Load();
+                .LoadAsync();
 
             return newProduct.ToReadDto();
         }
-        public void Update(int id, ProductUpdateDto dto)
+        public async Task UpdateAsync(int id, ProductUpdateDto dto)
         {
-            var product = GetProductWithIncludes()
-                .FirstOrDefault(pr => pr.Id == id);
+            var product = await GetProductWithIncludes()
+                .FirstOrDefaultAsync(pr => pr.Id == id);
 
             if (product is null)
                 throw new NotFoundException($"Product with ID {id} was not found.");
@@ -78,9 +74,9 @@ namespace StoreApi.Services
 
             if (dto.TagIds is not null)
             {
-                var newTags = _context.Tags
+                var newTags = await _context.Tags
                     .Where(t => dto.TagIds.Contains(t.Id))
-                    .ToList();
+                    .ToListAsync();
 
                 product.Tags?.Clear();
 
@@ -99,17 +95,17 @@ namespace StoreApi.Services
                 }
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var realProduct = _context.Products.FirstOrDefault(p => p.Id == id);
+            var realProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
 
             if (realProduct is null)
                 throw new NotFoundException($"Product with ID {id} was not found.");
 
             _context.Products.Remove(realProduct);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

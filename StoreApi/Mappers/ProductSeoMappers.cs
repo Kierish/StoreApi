@@ -18,7 +18,6 @@ namespace StoreApi.Mappers
                 OpenGraphImageUrl = seoDto.OpenGraphImageUrl
             };
         }
-
         public static ProductSeo ToEntity(this ProductSeoUpdateDto seoDto)
         {
             return new ProductSeo
@@ -29,7 +28,6 @@ namespace StoreApi.Mappers
                 OpenGraphImageUrl = seoDto.OpenGraphImageUrl
             };
         }
-
         public static void MapToEntity(this ProductSeoUpdateDto seoDto, ProductSeo existingSeo)
         {
             existingSeo.MetaTitle = seoDto.MetaTitle ?? existingSeo.MetaTitle;

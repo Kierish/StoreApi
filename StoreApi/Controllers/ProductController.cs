@@ -16,26 +16,26 @@ namespace StoreApi.Controllers
             _service = service;
         }
         [HttpGet]
-        public ActionResult<List<ProductReadDto>> GetProducts()
+        public async Task<ActionResult<List<ProductReadDto>>> GetProducts()
         {
-            return Ok(_service.GetAll());
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ProductReadDto> GetProductById(int id)
+        public async Task<ActionResult<ProductReadDto>> GetProductById(int id)
         {
-            var product = _service.GetById(id);
+            var product = await _service.GetByIdAsync(id);
 
             return Ok(product);
         }
 
         [HttpPost]
-        public ActionResult<ProductReadDto> AddProduct(ProductCreateDto dto)
+        public async Task<ActionResult<ProductReadDto>> AddProduct(ProductCreateDto dto)
         {
             if (dto is null)
                 throw new BadRequestException("Bad data.");
 
-            var result = _service.Create(dto);
+            var result = await _service.CreateAsync(dto);
 
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
@@ -46,15 +46,15 @@ namespace StoreApi.Controllers
             if (dto is null)
                 throw new BadRequestException("Bad data.");
 
-            _service.Update(id, dto);
+            _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            _service.Delete(id);
+            await _service.DeleteAsync(id);
    
             return NoContent();
         }
