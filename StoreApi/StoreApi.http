@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ###
-PUT {{rootURL}}/api/product/2
+PUT {{rootURL}}/api/product/3
 Content-Type: application/json
 {
   "TagIds": [3],
@@ -37,4 +37,4 @@ Content-Type: application/json
 }
 
 ###
-DELETE {{rootURL}}/api/product/9
+DELETE {{rootURL}}/api/product/10
