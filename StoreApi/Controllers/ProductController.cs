@@ -41,12 +41,12 @@ namespace StoreApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(int id, ProductUpdateDto dto)
+        public async Task<IActionResult> UpdateProduct(int id, ProductUpdateDto dto)
         {
             if (dto is null)
                 throw new BadRequestException("Bad data.");
 
-            _service.UpdateAsync(id, dto);
+            await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
