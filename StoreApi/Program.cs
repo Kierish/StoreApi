@@ -19,6 +19,24 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+
+        logger.LogInformation("Database migrated successfully.");
+    }
+    catch(Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
