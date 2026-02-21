@@ -10,6 +10,7 @@ namespace StoreApi.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +24,7 @@ namespace StoreApi.Data
                 new Tag { Id = 2, Name = "RGB", Products = null },
                 new Tag { Id = 3, Name = "Gaming", Products = null }
                 );
+
         }
     }
 }

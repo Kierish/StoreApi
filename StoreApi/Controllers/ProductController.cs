@@ -3,11 +3,13 @@ using StoreApi.DTOs;
 using StoreApi.Models;
 using StoreApi.Services;
 using StoreApi.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StoreApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;

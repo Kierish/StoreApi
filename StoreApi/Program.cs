@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StoreApi.Data;
 using StoreApi.Exceptions;
+using StoreApi.Interfaces;
 using StoreApi.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,30 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IAccountSevice, AccountService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var myKey = builder.Configuration["JwtSettings:SecretKey"]
+            ?? throw new InvalidOperationException("JWT Secret Key is missing from configuration.");
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience =  builder.Configuration["JwtSettings:Audience"],
+
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(myKey))
+        };
+
+    });
 
 var app = builder.Build();
 
@@ -31,11 +59,13 @@ using (var scope = app.Services.CreateScope())
 
         logger.LogInformation("Database migrated successfully.");
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred while migrating the database.");
     }
 }
+
+app.UseAuthentication();
 
 // Configure the HTTP request pipeline.
 
