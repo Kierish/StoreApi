@@ -12,8 +12,8 @@ using StoreApi.Data;
 namespace StoreApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260222174705_AddRefreshTokenTable")]
-    partial class AddRefreshTokenTable
+    [Migration("20260223192604_AddAppUserTable")]
+    partial class AddAppUserTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,7 +40,7 @@ namespace StoreApi.Migrations
                     b.ToTable("ProductTag");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.ApplicationUser", b =>
+            modelBuilder.Entity("StoreApi.Models.Identity.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,9 +57,15 @@ namespace StoreApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -67,7 +73,42 @@ namespace StoreApi.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Category", b =>
+            modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateExpire")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JwtId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -96,7 +137,7 @@ namespace StoreApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Product", b =>
+            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,7 +163,7 @@ namespace StoreApi.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.ProductSeo", b =>
+            modelBuilder.Entity("StoreApi.Models.Store.ProductSeo", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -145,35 +186,7 @@ namespace StoreApi.Migrations
                     b.ToTable("ProductSeo");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateAdded")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateExpire")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("StoreApi.Models.Tag", b =>
+            modelBuilder.Entity("StoreApi.Models.Store.Tag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,44 +222,22 @@ namespace StoreApi.Migrations
 
             modelBuilder.Entity("ProductTag", b =>
                 {
-                    b.HasOne("StoreApi.Models.Product", null)
+                    b.HasOne("StoreApi.Models.Store.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StoreApi.Models.Tag", null)
+                    b.HasOne("StoreApi.Models.Store.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Product", b =>
+            modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
                 {
-                    b.HasOne("StoreApi.Models.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("StoreApi.Models.ProductSeo", b =>
-                {
-                    b.HasOne("StoreApi.Models.Product", "Product")
-                        .WithOne("ProductSeo")
-                        .HasForeignKey("StoreApi.Models.ProductSeo", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("StoreApi.Models.RefreshToken", b =>
-                {
-                    b.HasOne("StoreApi.Models.ApplicationUser", "User")
+                    b.HasOne("StoreApi.Models.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -255,12 +246,34 @@ namespace StoreApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Category", b =>
+            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
+                {
+                    b.HasOne("StoreApi.Models.Store.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("StoreApi.Models.Store.ProductSeo", b =>
+                {
+                    b.HasOne("StoreApi.Models.Store.Product", "Product")
+                        .WithOne("ProductSeo")
+                        .HasForeignKey("StoreApi.Models.Store.ProductSeo", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Product", b =>
+            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
                 {
                     b.Navigation("ProductSeo");
                 });

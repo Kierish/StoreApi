@@ -8,6 +8,8 @@ namespace StoreApi.Models.Identity
         [Key]
         public int Id { get; set; }
         public required string Token { get; set; }
+        public required string JwtId { get; set; }
+        public required bool IsRevoked { get; set; }
         public required DateTime DateAdded { get; set; }
         public required DateTime DateExpire { get; set; }
 

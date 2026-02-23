@@ -3,6 +3,7 @@ using StoreApi.DTOs;
 using StoreApi.Services;
 using StoreApi.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using StoreApi.Models.Identity;
 
 namespace StoreApi.Controllers
 {
@@ -16,13 +17,14 @@ namespace StoreApi.Controllers
         {
             _service = service;
         }
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet]
         public async Task<ActionResult<List<ProductReadDto>>> GetProducts()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [Authorize(Roles = UserRoles.Customer)]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductReadDto>> GetProductById(int id)
         {
@@ -31,6 +33,7 @@ namespace StoreApi.Controllers
             return Ok(product);
         }
 
+        [Authorize(Roles = UserRoles.Empoloyee)]
         [HttpPost]
         public async Task<ActionResult<ProductReadDto>> AddProduct(ProductCreateDto dto)
         {
@@ -42,6 +45,7 @@ namespace StoreApi.Controllers
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
 
+        [Authorize(Roles = UserRoles.Empoloyee)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, ProductUpdateDto dto)
         {
@@ -53,6 +57,7 @@ namespace StoreApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = UserRoles.Empoloyee)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

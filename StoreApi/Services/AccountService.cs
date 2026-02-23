@@ -3,6 +3,7 @@ using StoreApi.Data;
 using StoreApi.DTOs;
 using StoreApi.Exceptions;
 using StoreApi.Interfaces;
+using StoreApi.Mappers;
 using StoreApi.Models.Identity;
 
 namespace StoreApi.Services
@@ -41,13 +42,7 @@ namespace StoreApi.Services
                 _context.RefreshTokens.RemoveRange(expiredTokens);
             }
 
-            string token = _authService.GenerateToken(appUser);
-            var refreshToken = _authService.GenerateRefreshToken(appUser);
-
-            _context.RefreshTokens.Add(refreshToken);
-            await _context.SaveChangesAsync();
-
-            return new AuthResponseDto(token, refreshToken.Token);
+            return await GenerateAndSaveTokensAsync(appUser);
         }
 
         public async Task<AuthResponseDto> RegisterUserAsync(RegisterDataDto dto)
@@ -60,22 +55,11 @@ namespace StoreApi.Services
             if (isUserExists)
                 throw new BadRequestException($"User already exists.");
 
-            var newUser = new ApplicationUser
-            {
-                UserName = dto.UserName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-            };
-
-            string token = _authService.GenerateToken(newUser);
-            var refreshToken = _authService.GenerateRefreshToken(newUser);
+            var newUser = UserApplicationMappers.ToEntity(dto);
 
             _context.Users.Add(newUser);
-            _context.RefreshTokens.Add(refreshToken);
-            await _context.SaveChangesAsync();
-
-            return new AuthResponseDto(token, refreshToken.Token);
+            
+            return await GenerateAndSaveTokensAsync(newUser);
         }
 
         public async Task<AuthResponseDto> RefreshTokenAsync(AuthRequestDto dto)
@@ -90,14 +74,22 @@ namespace StoreApi.Services
             if (refreshToken.DateExpire < DateTime.UtcNow)
                 throw new UnauthorizedException("Refresh token expired. Please log in again.");
 
-            string token = _authService.GenerateToken(refreshToken.User);
-            var newRefreshToken = _authService.GenerateRefreshToken(refreshToken.User);
-
             _context.Remove(refreshToken);
-            _context.RefreshTokens.Add(newRefreshToken);
+            
+            return await GenerateAndSaveTokensAsync(refreshToken.User);
+        }
+
+        private async Task<AuthResponseDto> GenerateAndSaveTokensAsync(ApplicationUser user)
+        {
+            string jti = Guid.NewGuid().ToString();
+
+            var jwtToken = _authService.GenerateToken(user, jti);
+            var refreshToken = _authService.GenerateRefreshToken(user, jti);
+
+            _context.RefreshTokens.Add(refreshToken);
             await _context.SaveChangesAsync();
 
-            return new AuthResponseDto(token, newRefreshToken.Token);
+            return new AuthResponseDto(jwtToken, refreshToken.Token);
         }
     }
 }

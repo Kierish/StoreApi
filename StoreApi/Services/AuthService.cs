@@ -17,56 +17,51 @@ namespace StoreApi.Services
         {
             _jwtSettings = jwtOptions.Value;
         }
-        public string GenerateToken(ApplicationUser user)
+        public string GenerateToken(ApplicationUser user, string jti)
         {
             var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.PhoneNumber, user.PhoneNumber),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 
-            var mySecretKey = _jwtSettings.SecretKey; 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(mySecretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var issuer = _jwtSettings.Issuer;
-            var audience = _jwtSettings.Audience;
-
-            var expirationTime = _jwtSettings.AccessTokenExpirationMinutes;
-
-            var tokenObject = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(expirationTime),
-                signingCredentials: creds
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
                 );
 
-            var handler = new JwtSecurityTokenHandler();
-            var tokenString = handler.WriteToken(tokenObject);
+            var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return tokenString;
+            return jwtToken; 
         }
 
-        public RefreshToken GenerateRefreshToken(ApplicationUser user)
+        public RefreshToken GenerateRefreshToken(ApplicationUser user, string jti)
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             string token = Convert.ToBase64String(randomNumber);
 
-            var expirationTime = _jwtSettings.RefreshTokenExpirationDays;
-
-            var newRefreshToken = new RefreshToken
+            var refreshToken = new RefreshToken
             {
                 Token = token,
+                JwtId = jti,
+                IsRevoked = false,
                 DateAdded = DateTime.UtcNow,
-                DateExpire = DateTime.UtcNow.AddDays(expirationTime),
+                DateExpire = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
                 User = user
             };
 
-            return newRefreshToken;
+            return refreshToken;
         }
     }
 }

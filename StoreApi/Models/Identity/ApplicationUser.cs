@@ -10,7 +10,8 @@ namespace StoreApi.Models.Identity
         public required string Email { get; set; }
         [Required]
         public required string PasswordHash { get; set; }
-        public string? UserName { get; set; }
-        public string? PhoneNumber { get; set; }
+        public required string UserName { get; set; }
+        public required string PhoneNumber { get; set; }
+        public required string Role { get; set; }
     }
 }

@@ -3,11 +3,11 @@
 namespace StoreApi.DTOs
 {
     public record AuthResponseDto(
-        [Required] string Token,
-        [Required] string RefreshToken
+        string Token,
+        string RefreshToken
         );
 
     public record AuthRequestDto(
-        string RefreshToken
+        [Required] string RefreshToken
         );
 }
