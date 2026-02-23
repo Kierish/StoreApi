@@ -1,5 +1,4 @@
 ﻿using StoreApi.DTOs;
-using StoreApi.Models;
 
 namespace StoreApi.Services
 {

@@ -1,4 +1,4 @@
-﻿using StoreApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace StoreApi.DTOs
 {
@@ -9,7 +9,7 @@ namespace StoreApi.DTOs
         string? OpenGraphImageUrl
     );
     public record ProductSeoCreateDto(
-        string MetaTitle,
+        [Required] string MetaTitle,
         string? MetaDescription,
         string? Slug,
         string? OpenGraphImageUrl

@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StoreApi.Data;
 using StoreApi.DTOs;
-using StoreApi.Services;
-using StoreApi.Models;
 using StoreApi.Exceptions;
-using Microsoft.EntityFrameworkCore;
 using StoreApi.Interfaces;
-using Microsoft.JSInterop.Infrastructure;
 
 namespace StoreApi.Controllers
 {
@@ -22,14 +17,12 @@ namespace StoreApi.Controllers
         }
 
         [HttpPost("login-user")]
-        public async Task<ActionResult<AuthResponseDto>> Login(LoginDataDto user)
+        public async Task<ActionResult<AuthResponseDto>> Login(LoginDataDto dto)
         { 
-            if (user is null)
-                throw new BadRequestException("Incalid data.");
+            if (dto is null)
+                throw new BadRequestException("Invalid data.");
 
-            string token = await _accService.LoginUser(user);
-
-            return Ok(new AuthResponseDto(token));
+            return Ok(await _accService.LoginUserAsync(dto));
         }
 
         [HttpPost("reg-user")]
@@ -38,9 +31,16 @@ namespace StoreApi.Controllers
             if (dto is null)
                 throw new BadRequestException("Invalid data.");
 
-            string token = await _accService.RegisterUser(dto);
+            return Ok(await _accService.RegisterUserAsync(dto));
+        }
 
-            return Ok(new AuthResponseDto(token));
+        [HttpPost("refresh")]
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken(AuthRequestDto dto)
+        {
+            if (dto is null)
+                throw new BadRequestException("Invalid data.");
+
+            return Ok(await _accService.RefreshTokenAsync(dto));
         }
     }
 }

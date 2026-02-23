@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StoreApi.Models
+namespace StoreApi.Models.Identity
 {
     public class ApplicationUser
     {

@@ -1,9 +1,9 @@
 ﻿using StoreApi.Data;
 using StoreApi.DTOs;
-using StoreApi.Models;
 using StoreApi.Mappers;
 using StoreApi.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using StoreApi.Models.Store;
 
 namespace StoreApi.Services
 {

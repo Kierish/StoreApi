@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace StoreApi.DTOs
 {
@@ -13,9 +12,5 @@ namespace StoreApi.DTOs
         [Required] string Email,
         [Required] string PhoneNumber,
         [Required] string Password
-        );
-
-    public record AuthResponseDto(
-        [Required] string Token
         );
 }

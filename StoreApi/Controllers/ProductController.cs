@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StoreApi.DTOs;
-using StoreApi.Models;
 using StoreApi.Services;
 using StoreApi.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +17,7 @@ namespace StoreApi.Controllers
             _service = service;
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<ProductReadDto>>> GetProducts()
         {
             return Ok(await _service.GetAllAsync());

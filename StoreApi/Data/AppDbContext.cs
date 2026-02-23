@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using StoreApi.Models;
+using StoreApi.Models.Identity;
+using StoreApi.Models.Store;
 
 namespace StoreApi.Data
 {
@@ -11,7 +12,7 @@ namespace StoreApi.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }  
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>().HasData(

@@ -1,4 +1,4 @@
-﻿using StoreApi.Models;
+﻿using StoreApi.DTOs;
 using System.Net;
 using System.Text.Json;
 
@@ -43,14 +43,17 @@ namespace StoreApi.Exceptions
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     message = ex.Message;
                     break;
+                case UnauthorizedException:
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    message = ex.Message;
+                    break;
             }
 
-            var response = new ErrorResponse
-            {
-                StatusCode = context.Response.StatusCode,
-                Message = message,
-                Details = ex.StackTrace
-            };
+            var response = new ErrorResponse(
+                context.Response.StatusCode,
+                message,
+                ex.StackTrace
+            );
 
             var json = JsonSerializer.Serialize(response);  
 

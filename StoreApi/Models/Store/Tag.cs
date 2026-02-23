@@ -1,6 +1,6 @@
-﻿namespace StoreApi.Models
+﻿namespace StoreApi.Models.Store
 {
-    public class Category
+    public class Tag
     {
         public int Id { get; set; }
         public required string Name { get; set; }

@@ -1,6 +1,5 @@
 ﻿using StoreApi.DTOs;
-using StoreApi.Exceptions;
-using StoreApi.Models;
+using StoreApi.Models.Store;
 
 namespace StoreApi.Mappers
 {

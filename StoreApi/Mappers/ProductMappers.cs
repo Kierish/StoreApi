@@ -1,5 +1,5 @@
-﻿using StoreApi.Models;
-using StoreApi.DTOs;
+﻿using StoreApi.DTOs;
+using StoreApi.Models.Store;
 
 namespace StoreApi.Mappers
 {

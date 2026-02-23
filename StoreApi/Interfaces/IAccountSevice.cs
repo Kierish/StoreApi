@@ -4,7 +4,8 @@ namespace StoreApi.Interfaces
 {
     public interface IAccountSevice
     {
-        Task<string> LoginUser(LoginDataDto dto);
-        Task<string> RegisterUser(RegisterDataDto dto);
+        Task<AuthResponseDto> LoginUserAsync(LoginDataDto dto);
+        Task<AuthResponseDto> RegisterUserAsync(RegisterDataDto dto);
+        Task<AuthResponseDto> RefreshTokenAsync(AuthRequestDto dto);
     }
 }

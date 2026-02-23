@@ -5,6 +5,7 @@ using StoreApi.Data;
 using StoreApi.Exceptions;
 using StoreApi.Interfaces;
 using StoreApi.Services;
+using StoreApi.Settings;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,22 +24,33 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IAccountSevice, AccountService>();
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+if (jwtSettings is null 
+    || string.IsNullOrEmpty(jwtSettings.Issuer) 
+    || string.IsNullOrEmpty(jwtSettings.Audience)
+    || string.IsNullOrEmpty(jwtSettings.SecretKey))
+{
+    throw new InvalidOperationException("JwtSettings missed something from configuration.");
+}
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var myKey = builder.Configuration["JwtSettings:SecretKey"]
-            ?? throw new InvalidOperationException("JWT Secret Key is missing from configuration.");
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidIssuer = jwtSettings.Issuer,
 
             ValidateAudience = true,
-            ValidAudience =  builder.Configuration["JwtSettings:Audience"],
+            ValidAudience =  jwtSettings.Audience,
 
             ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(myKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+
+            ClockSkew = TimeSpan.Zero
         };
 
     });
