@@ -8,6 +8,7 @@ namespace StoreApi.DTOs
         );
 
     public record AuthRequestDto(
-        [Required] string RefreshToken
+        [Required] string RefreshToken,
+        [Required] string JwtToken
         );
 }

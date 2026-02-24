@@ -36,23 +36,24 @@ if (jwtSettings is null
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+var tokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidIssuer = jwtSettings.Issuer,
+
+    ValidateAudience = true,
+    ValidAudience = jwtSettings.Audience,
+
+    ValidateLifetime = true,
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+
+    ClockSkew = TimeSpan.Zero
+};
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings.Issuer,
-
-            ValidateAudience = true,
-            ValidAudience =  jwtSettings.Audience,
-
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-
-            ClockSkew = TimeSpan.Zero
-        };
-
+        options.TokenValidationParameters = tokenValidationParameters;
     });
 
 var app = builder.Build();
