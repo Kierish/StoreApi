@@ -5,7 +5,7 @@ namespace StoreApi.Mappers
 {
     public static class UserApplicationMappers
     {
-        public static ApplicationUser ToEntity(RegisterDataDto dto)
+        public static ApplicationUser ToEntity(this RegisterDataDto dto)
         {
             return new ApplicationUser
             {

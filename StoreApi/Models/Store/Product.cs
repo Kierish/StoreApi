@@ -12,7 +12,7 @@ namespace StoreApi.Models.Store
         [StringLength(100, MinimumLength = 3)]
         public required string Name { get; set; }
 
-        public List<Tag>? Tags { get; set; }
+        public ICollection<Tag>? Tags { get; set; } = new HashSet<Tag>();
 
         [Required]
         [Range(1, int.MaxValue)]

@@ -80,7 +80,10 @@ namespace StoreApi.Services
 
                 product.Tags?.Clear();
 
-                product.Tags?.AddRange(newTags);
+                foreach (var tag in newTags)
+                {
+                    product.Tags?.Add(tag);
+                }
             }
 
             if (dto.ProductSeo is { } seoDto)

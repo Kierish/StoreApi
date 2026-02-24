@@ -57,7 +57,7 @@ namespace StoreApi.Services
             if (isUserExists)
                 throw new BadRequestException($"User already exists.");
 
-            var newUser = UserApplicationMappers.ToEntity(dto);
+            var newUser = dto.ToEntity();
 
             _context.Users.Add(newUser);
             
