@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StoreApi.DTOs;
 using StoreApi.Exceptions;
-using StoreApi.Interfaces;
+using StoreApi.Interfaces.Services;
 
 namespace StoreApi.Controllers
 {

@@ -2,7 +2,7 @@
 using StoreApi.Models.Identity;
 using System.Security.Claims;
 
-namespace StoreApi.Interfaces
+namespace StoreApi.Interfaces.Services
 {
     public interface IAuthService
     {

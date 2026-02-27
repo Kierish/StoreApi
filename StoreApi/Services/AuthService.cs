@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using StoreApi.Interfaces;
+using StoreApi.Interfaces.Services;
 using StoreApi.Models.Identity;
 using StoreApi.Settings;
 using System.IdentityModel.Tokens.Jwt;

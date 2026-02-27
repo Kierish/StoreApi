@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StoreApi.Data;
 using StoreApi.Exceptions;
-using StoreApi.Interfaces;
+using StoreApi.Interfaces.Services;
+using StoreApi.Interfaces.Repositories;
+using StoreApi.Repositories;
 using StoreApi.Services;
 using StoreApi.Settings;
 using System.Text;
@@ -19,9 +21,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 builder.Services.AddScoped<IAccountSevice, AccountService>();
 

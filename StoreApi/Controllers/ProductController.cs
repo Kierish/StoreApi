@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StoreApi.DTOs;
-using StoreApi.Services;
 using StoreApi.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using StoreApi.Models.Identity;
+using StoreApi.Interfaces.Services;
 
 namespace StoreApi.Controllers
 {

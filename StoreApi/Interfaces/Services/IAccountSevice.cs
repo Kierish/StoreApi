@@ -1,6 +1,6 @@
 ﻿using StoreApi.DTOs;
 
-namespace StoreApi.Interfaces
+namespace StoreApi.Interfaces.Services
 {
     public interface IAccountSevice
     {
