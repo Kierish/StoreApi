@@ -5,10 +5,7 @@ namespace StoreApi.Models.Store
 {
     public class ProductSeo
     {
-        [Key]
-        [ForeignKey(nameof(Product))]
         public int Id { get; set; }
-        [Required]
         public Product Product { get; set; } = null!;
         public required string MetaTitle { get; set; }
         public string? MetaDescription { get; set; }

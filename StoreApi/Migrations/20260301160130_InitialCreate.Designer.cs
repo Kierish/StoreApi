@@ -12,8 +12,8 @@ using StoreApi.Data;
 namespace StoreApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260223192632_AddRefereshTokenTable")]
-    partial class AddRefereshTokenTable
+    [Migration("20260301160130_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,27 +50,41 @@ namespace StoreApi.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationUser", (string)null);
                 });
 
             modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
@@ -105,7 +119,7 @@ namespace StoreApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshToken", (string)null);
                 });
 
             modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
@@ -118,11 +132,12 @@ namespace StoreApi.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Category", (string)null);
 
                     b.HasData(
                         new
@@ -154,13 +169,14 @@ namespace StoreApi.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("StoreApi.Models.Store.ProductSeo", b =>
@@ -173,7 +189,8 @@ namespace StoreApi.Migrations
 
                     b.Property<string>("MetaTitle")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("OpenGraphImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -183,7 +200,7 @@ namespace StoreApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductSeo");
+                    b.ToTable("ProductSeo", (string)null);
                 });
 
             modelBuilder.Entity("StoreApi.Models.Store.Tag", b =>
@@ -196,11 +213,12 @@ namespace StoreApi.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tag", (string)null);
 
                     b.HasData(
                         new

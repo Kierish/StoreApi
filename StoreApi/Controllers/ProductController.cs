@@ -24,7 +24,7 @@ namespace StoreApi.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        [Authorize(Roles = UserRoles.Customer)]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductReadDto>> GetProductById(int id)
         {
@@ -33,7 +33,7 @@ namespace StoreApi.Controllers
             return Ok(product);
         }
 
-        [Authorize(Roles = UserRoles.Empoloyee)]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpPost]
         public async Task<ActionResult<ProductReadDto>> AddProduct(ProductCreateDto dto)
         {
@@ -45,7 +45,7 @@ namespace StoreApi.Controllers
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
 
-        [Authorize(Roles = UserRoles.Empoloyee)]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, ProductUpdateDto dto)
         {
@@ -57,12 +57,12 @@ namespace StoreApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = UserRoles.Empoloyee)]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             await _service.DeleteAsync(id);
-   
+
             return NoContent();
         }
     }

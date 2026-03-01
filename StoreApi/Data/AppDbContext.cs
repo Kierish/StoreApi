@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StoreApi.Models.Identity;
 using StoreApi.Models.Store;
+using System.Reflection;
 
 namespace StoreApi.Data
 {
@@ -15,6 +16,9 @@ namespace StoreApi.Data
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Electronics" },
                 new Category { Id = 2, Name = "Accessories" }
@@ -25,7 +29,6 @@ namespace StoreApi.Data
                 new Tag { Id = 2, Name = "RGB", Products = null },
                 new Tag { Id = 3, Name = "Gaming", Products = null }
                 );
-
         }
     }
 }
