@@ -1,14 +1,17 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StoreApi.Data;
 using StoreApi.Exceptions;
-using StoreApi.Interfaces.Services;
+using StoreApi.Filters;
 using StoreApi.Interfaces.Repositories;
+using StoreApi.Interfaces.Services;
 using StoreApi.Repositories;
 using StoreApi.Services;
 using StoreApi.Settings;
+using StoreApi.Validators;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +21,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+builder.Services.AddTransient(typeof(ValidationFilter<>));
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 

@@ -4,6 +4,7 @@ using StoreApi.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using StoreApi.Models.Identity;
 using StoreApi.Interfaces.Services;
+using StoreApi.Filters;
 
 namespace StoreApi.Controllers
 {
@@ -17,15 +18,15 @@ namespace StoreApi.Controllers
         {
             _service = service;
         }
-        [AllowAnonymous]
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<ProductReadDto>>> GetProducts()
         {
             return Ok(await _service.GetAllAsync());
         }
 
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpGet("{id}")]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         public async Task<ActionResult<ProductReadDto>> GetProductById(int id)
         {
             var product = await _service.GetByIdAsync(id);
@@ -33,8 +34,9 @@ namespace StoreApi.Controllers
             return Ok(product);
         }
 
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpPost]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [ServiceFilter(typeof(ValidationFilter<ProductCreateDto>))]
         public async Task<ActionResult<ProductReadDto>> AddProduct(ProductCreateDto dto)
         {
             if (dto is null)
@@ -45,8 +47,9 @@ namespace StoreApi.Controllers
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
 
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
+        [ServiceFilter(typeof(ValidationFilter<ProductUpdateDto>))]
         public async Task<IActionResult> UpdateProduct(int id, ProductUpdateDto dto)
         {
             if (dto is null)
@@ -57,8 +60,8 @@ namespace StoreApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             await _service.DeleteAsync(id);

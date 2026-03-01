@@ -13,18 +13,18 @@ namespace StoreApi.DTOs
     );
 
     public record ProductCreateDto(
-        [Required(ErrorMessage = "Name is required")][StringLength(100, MinimumLength = 3)] string Name,
+        string Name,
         List<int>? TagIds,
-        [Required][Range(1, int.MaxValue)] int CategoryId,
-        [Required] decimal? Price,
+        int CategoryId,
+        decimal? Price,
         ProductSeoCreateDto? ProductSeo
     );
 
     public record ProductUpdateDto(
-        [StringLength(100, MinimumLength = 3)] string? Name,
+        string? Name,
         List<int>? TagIds,
-        [Range(1, int.MaxValue)] int? CategoryId,
-        [Range(0.1, (double)decimal.MaxValue)] decimal? Price,
+        int? CategoryId,
+        decimal? Price,
         ProductSeoUpdateDto? ProductSeo
     );
 }

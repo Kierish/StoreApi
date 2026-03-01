@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StoreApi.Models.Identity;
 
-namespace StoreApi.Configurations.Identity
+namespace StoreApi.Data.Configurations.Identity
 {
     public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {

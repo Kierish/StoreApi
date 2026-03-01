@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StoreApi.DTOs;
 using StoreApi.Exceptions;
+using StoreApi.Filters;
 using StoreApi.Interfaces.Services;
 
 namespace StoreApi.Controllers
@@ -17,6 +18,7 @@ namespace StoreApi.Controllers
         }
 
         [HttpPost("login-user")]
+        [ServiceFilter(typeof(ValidationFilter<LoginDataDto>))]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDataDto dto)
         { 
             if (dto is null)
@@ -26,6 +28,7 @@ namespace StoreApi.Controllers
         }
 
         [HttpPost("reg-user")]
+        [ServiceFilter(typeof(ValidationFilter<RegisterDataDto>))]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDataDto dto)
         {
             if (dto is null)
@@ -35,6 +38,7 @@ namespace StoreApi.Controllers
         }
 
         [HttpPost("refresh")]
+        [ServiceFilter(typeof(ValidationFilter<AuthRequestDto>))]
         public async Task<ActionResult<AuthResponseDto>> RefreshToken(AuthRequestDto dto)
         {
             if (dto is null)

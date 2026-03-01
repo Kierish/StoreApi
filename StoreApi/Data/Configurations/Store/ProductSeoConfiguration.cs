@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StoreApi.Models.Store;
 
-namespace StoreApi.Configurations.Store
+namespace StoreApi.Data.Configurations.Store
 {
     public class ProductSeoConfiguration : IEntityTypeConfiguration<ProductSeo>
     {

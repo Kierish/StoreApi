@@ -9,7 +9,7 @@ namespace StoreApi.DTOs
         string? OpenGraphImageUrl
     );
     public record ProductSeoCreateDto(
-        [Required] string MetaTitle,
+        string MetaTitle,
         string? MetaDescription,
         string? Slug,
         string? OpenGraphImageUrl
