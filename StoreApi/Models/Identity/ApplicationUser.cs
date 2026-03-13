@@ -4,7 +4,7 @@ namespace StoreApi.Models.Identity
 {
     public class ApplicationUser
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.CreateVersion7();
         public required string Email { get; set; }
         public required string PasswordHash { get; set; }
         public required string UserName { get; set; }

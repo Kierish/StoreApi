@@ -19,15 +19,22 @@ namespace StoreApi.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
+            var electronicsId = new Guid("11111111-1111-1111-1111-111111111111");
+            var accessoriesId = new Guid("22222222-2222-2222-2222-222222222222");
+
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Electronics" },
-                new Category { Id = 2, Name = "Accessories" }
-                );  
+                new Category { Id = electronicsId, Name = "Electronics" },
+                new Category { Id = accessoriesId, Name = "Accessories" }
+                );
+
+            var wirelessId = new Guid("33333333-3333-3333-3333-333333333333");
+            var rgbId = new Guid("44444444-4444-4444-4444-444444444444");
+            var gamingId = new Guid("55555555-5555-5555-5555-555555555555");
 
             modelBuilder.Entity<Tag>().HasData(
-                new Tag { Id = 1, Name = "Wireless", Products = null },
-                new Tag { Id = 2, Name = "RGB", Products = null },
-                new Tag { Id = 3, Name = "Gaming", Products = null }
+                new Tag { Id = wirelessId, Name = "Wireless" },
+                new Tag { Id = rgbId, Name = "RGB" },
+                new Tag { Id = gamingId, Name = "Gaming" }
                 );
         }
     }

@@ -6,7 +6,7 @@ namespace StoreApi.Interfaces.Repositories
     public interface IAccountRepository
     {
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
-        Task<List<RefreshToken>?> GetUsersExpiredRefreshTokensAsync(int userId);
+        Task<List<RefreshToken>?> GetUsersExpiredRefreshTokensAsync(Guid userId);
         void RemoveRangeRefreshTokens(List<RefreshToken> refreshTokens);
         Task<bool> IsUserExistsAsync(RegisterDataDto dto);
         void AddUser(ApplicationUser user);

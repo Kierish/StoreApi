@@ -12,7 +12,7 @@ using StoreApi.Data;
 namespace StoreApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260301160130_InitialCreate")]
+    [Migration("20260313131935_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,11 +27,11 @@ namespace StoreApi.Migrations
 
             modelBuilder.Entity("ProductTag", b =>
                 {
-                    b.Property<int>("ProductsId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TagsId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProductsId", "TagsId");
 
@@ -42,11 +42,9 @@ namespace StoreApi.Migrations
 
             modelBuilder.Entity("StoreApi.Models.Identity.ApplicationUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -89,11 +87,9 @@ namespace StoreApi.Migrations
 
             modelBuilder.Entity("StoreApi.Models.Identity.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
@@ -112,8 +108,8 @@ namespace StoreApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -124,11 +120,9 @@ namespace StoreApi.Migrations
 
             modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -142,26 +136,24 @@ namespace StoreApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Name = "Electronics"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Name = "Accessories"
                         });
                 });
 
             modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -179,37 +171,11 @@ namespace StoreApi.Migrations
                     b.ToTable("Product", (string)null);
                 });
 
-            modelBuilder.Entity("StoreApi.Models.Store.ProductSeo", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MetaDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MetaTitle")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OpenGraphImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductSeo", (string)null);
-                });
-
             modelBuilder.Entity("StoreApi.Models.Store.Tag", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -223,17 +189,17 @@ namespace StoreApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Name = "Wireless"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Name = "RGB"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
                             Name = "Gaming"
                         });
                 });
@@ -272,28 +238,41 @@ namespace StoreApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("StoreApi.Models.Store.ProductSeo", "ProductSeo", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("MetaDescription")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+
+                            b1.Property<string>("OpenGraphImageUrl")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Slug")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Product");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.Navigation("Category");
-                });
 
-            modelBuilder.Entity("StoreApi.Models.Store.ProductSeo", b =>
-                {
-                    b.HasOne("StoreApi.Models.Store.Product", "Product")
-                        .WithOne("ProductSeo")
-                        .HasForeignKey("StoreApi.Models.Store.ProductSeo", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
+                    b.Navigation("ProductSeo");
                 });
 
             modelBuilder.Entity("StoreApi.Models.Store.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("StoreApi.Models.Store.Product", b =>
-                {
-                    b.Navigation("ProductSeo");
                 });
 #pragma warning restore 612, 618
         }

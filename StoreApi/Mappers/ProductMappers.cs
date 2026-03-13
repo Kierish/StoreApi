@@ -5,19 +5,19 @@ namespace StoreApi.Mappers
 {
     public static class ProductMappers
     {
-        public static Product ToEntity(this ProductCreateDto dto)
+        public static Product ToEntity(this ProductCreateDto dto, Guid categoryId)
         {
             return new Product
             {
                 Name = dto.Name,
-                CategoryId = dto.CategoryId,
-                Price = dto.Price!.Value
+                CategoryId = categoryId,
+                Price = dto.Price
             };
         }
-        public static void ToEntity(this ProductUpdateDto dto, Product product)
+        public static void ToEntity(this ProductUpdateDto dto, Product product, Guid? categoryId)
         {
             product.Name = dto.Name ?? product.Name;
-            product.CategoryId = dto.CategoryId ?? product.CategoryId;
+            product.CategoryId = categoryId ?? product.CategoryId;
             product.Price = dto.Price.HasValue ? dto.Price.Value : product.Price;
         }
         public static ProductReadDto ToReadDto(this Product dto)

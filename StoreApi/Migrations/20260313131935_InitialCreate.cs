@@ -17,8 +17,7 @@ namespace StoreApi.Migrations
                 name: "ApplicationUser",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -34,8 +33,7 @@ namespace StoreApi.Migrations
                 name: "Category",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -47,8 +45,7 @@ namespace StoreApi.Migrations
                 name: "Tag",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -60,14 +57,13 @@ namespace StoreApi.Migrations
                 name: "RefreshToken",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     JwtId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateExpire = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,11 +80,14 @@ namespace StoreApi.Migrations
                 name: "Product",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    ProductSeo_MetaTitle = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ProductSeo_MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductSeo_Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductSeo_OpenGraphImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -102,32 +101,11 @@ namespace StoreApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductSeo",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    MetaTitle = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OpenGraphImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductSeo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductSeo_Product_Id",
-                        column: x => x.Id,
-                        principalTable: "Product",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductTag",
                 columns: table => new
                 {
-                    ProductsId = table.Column<int>(type: "int", nullable: false),
-                    TagsId = table.Column<int>(type: "int", nullable: false)
+                    ProductsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TagsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -151,8 +129,8 @@ namespace StoreApi.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Electronics" },
-                    { 2, "Accessories" }
+                    { new Guid("11111111-1111-1111-1111-111111111111"), "Electronics" },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Accessories" }
                 });
 
             migrationBuilder.InsertData(
@@ -160,9 +138,9 @@ namespace StoreApi.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Wireless" },
-                    { 2, "RGB" },
-                    { 3, "Gaming" }
+                    { new Guid("33333333-3333-3333-3333-333333333333"), "Wireless" },
+                    { new Guid("44444444-4444-4444-4444-444444444444"), "RGB" },
+                    { new Guid("55555555-5555-5555-5555-555555555555"), "Gaming" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -202,9 +180,6 @@ namespace StoreApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "ProductSeo");
-
             migrationBuilder.DropTable(
                 name: "ProductTag");
 

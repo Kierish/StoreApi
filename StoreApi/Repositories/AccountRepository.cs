@@ -18,7 +18,7 @@ namespace StoreApi.Repositories
         public async Task<ApplicationUser?> GetUserByEmailAsync(string email)
             => await _context.Users.FirstOrDefaultAsync(us => us.Email == email);
 
-        public async Task<List<RefreshToken>?> GetUsersExpiredRefreshTokensAsync(int userId)
+        public async Task<List<RefreshToken>?> GetUsersExpiredRefreshTokensAsync(Guid userId)
             => await _context.RefreshTokens
             .Where(t => t.UserId == userId && t.DateExpire < DateTime.UtcNow)
             .ToListAsync();

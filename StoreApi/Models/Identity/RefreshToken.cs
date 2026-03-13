@@ -5,13 +5,13 @@ namespace StoreApi.Models.Identity
 {
     public class RefreshToken
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.CreateVersion7();
         public required string Token { get; set; }
         public required string JwtId { get; set; }
         public required bool IsRevoked { get; set; }
         public required DateTime DateAdded { get; set; }
         public required DateTime DateExpire { get; set; }
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public required ApplicationUser User { get; set; }   
     }
 }

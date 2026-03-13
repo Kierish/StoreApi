@@ -27,7 +27,7 @@ namespace StoreApi.Controllers
             return Ok(await _accService.LoginUserAsync(dto));
         }
 
-        [HttpPost("reg-user")]
+        [HttpPost("register-user")]
         [ServiceFilter(typeof(ValidationFilter<RegisterDataDto>))]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDataDto dto)
         {

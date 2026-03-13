@@ -21,8 +21,10 @@ namespace StoreApi.Data.Configurations.Store
                 .WithMany(c => c.Products)
                 .HasForeignKey(pr => pr.CategoryId);
 
-            builder.HasOne(pr => pr.ProductSeo)
-                .WithOne(seo => seo.Product);
+            builder.OwnsOne(p => p.ProductSeo, seoBuilder =>
+            {
+                seoBuilder.Property(s => s.MetaTitle).HasMaxLength(100);
+            });
         }
     }
 }

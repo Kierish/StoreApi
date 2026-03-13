@@ -11,7 +11,6 @@ namespace StoreApi.Validators
                 .MinimumLength(3).MaximumLength(100);
 
             RuleFor(d => d.Price).NotNull().GreaterThan(0);
-            RuleFor(d => d.CategoryId).GreaterThanOrEqualTo(1);
 
             RuleFor(d => d.ProductSeo)
                 .SetValidator(seoValidator)
@@ -27,9 +26,6 @@ namespace StoreApi.Validators
 
             RuleFor(d => d.Price).GreaterThan(0)
                 .When(d => d.Price != null);
-
-            RuleFor(d => d.CategoryId).GreaterThanOrEqualTo(1)
-                .When(d => d.CategoryId != null);
 
             RuleFor(d => d.ProductSeo)
                 .SetValidator(seoValidator)

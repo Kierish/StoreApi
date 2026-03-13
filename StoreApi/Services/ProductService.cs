@@ -24,7 +24,7 @@ namespace StoreApi.Services
 
             return products.Select(p => p.ToReadDto()).ToList();
         }
-        public async Task<ProductReadDto?> GetByIdAsync(int id)
+        public async Task<ProductReadDto?> GetByIdAsync(Guid id)
         {
             var product = await _repo.GetProductByIdAsync(id);
 
@@ -35,11 +35,16 @@ namespace StoreApi.Services
         }
         public async Task<ProductReadDto> CreateAsync(ProductCreateDto dto)
         {
-            var newProduct = dto.ToEntity();
+            var categoryId = await _repo.GetCategoryIdAsync(dto.CategoryName);
 
-            if (dto.TagIds is not null)
+            if (categoryId is null)
+                throw new NotFoundException($"Category {dto.CategoryName} doesn't exist.");
+
+            var newProduct = dto.ToEntity(categoryId.Value);
+
+            if (dto.TagNames is not null)
             {
-                newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagIds);
+                newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagNames);
             }
 
             newProduct.ProductSeo = dto.ProductSeo?.ToEntity();
@@ -51,21 +56,31 @@ namespace StoreApi.Services
 
             return newProduct.ToReadDto();
         }
-        public async Task UpdateAsync(int id, ProductUpdateDto dto)
+        public async Task UpdateAsync(Guid id, ProductUpdateDto dto)
         {
             var product = await _repo.GetProductByIdAsync(id);
 
             if (product is null)
                 throw new NotFoundException($"Product with ID {id} was not found.");
 
-            dto.ToEntity(product);
+            Guid? categoryId = null;
 
-            if (dto.TagIds is not null)
+            if (dto.CategoryName is not null)
             {
-                if (!await _repo.IsTagIdsInDb(dto.TagIds))
+                categoryId = await _repo.GetCategoryIdAsync(dto.CategoryName);
+
+                if (categoryId is null)
+                    throw new NotFoundException($"Category {dto.CategoryName} doesn't exist.");
+            }
+
+            dto.ToEntity(product, categoryId);
+
+            if (dto.TagNames is not null)
+            {
+                if (!await _repo.IsTagIdsInDb(dto.TagNames))
                     throw new NotFoundException("Such tags do not exists.");
 
-                var newTags = await _repo.GetTagsContainedInDto(dto.TagIds);
+                var newTags = await _repo.GetTagsContainedInDto(dto.TagNames);
 
                 product.Tags?.Clear();
 
@@ -89,7 +104,7 @@ namespace StoreApi.Services
 
             await _repo.SaveChangesAsync();
         }
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var realProduct = await _repo.GetProductByIdAsync(id);
 

@@ -5,8 +5,6 @@ namespace StoreApi.Models.Store
 {
     public class ProductSeo
     {
-        public int Id { get; set; }
-        public Product Product { get; set; } = null!;
         public required string MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
         public string? Slug {  get; set; }

@@ -27,7 +27,7 @@ namespace StoreApi.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
-        public async Task<ActionResult<ProductReadDto>> GetProductById(int id)
+        public async Task<ActionResult<ProductReadDto>> GetProductById(Guid id)
         {
             var product = await _service.GetByIdAsync(id);
 
@@ -50,7 +50,7 @@ namespace StoreApi.Controllers
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [ServiceFilter(typeof(ValidationFilter<ProductUpdateDto>))]
-        public async Task<IActionResult> UpdateProduct(int id, ProductUpdateDto dto)
+        public async Task<IActionResult> UpdateProduct(Guid id, ProductUpdateDto dto)
         {
             if (dto is null)
                 throw new BadRequestException("Bad data.");
@@ -62,7 +62,7 @@ namespace StoreApi.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
             await _service.DeleteAsync(id);
 

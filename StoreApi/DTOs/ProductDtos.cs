@@ -3,10 +3,10 @@
 namespace StoreApi.DTOs
 {
     public record ProductReadDto(
-        int Id,
+        Guid Id,
         string Name,
-        List<string>? TagName,
-        int CategoryId,
+        List<string>? TagNames,
+        Guid CategoryId,
         string? CategoryName,
         decimal Price,
         ProductSeoReadDto? ProductSeo
@@ -14,16 +14,16 @@ namespace StoreApi.DTOs
 
     public record ProductCreateDto(
         string Name,
-        List<int>? TagIds,
-        int CategoryId,
-        decimal? Price,
+        List<string>? TagNames,
+        string CategoryName,
+        decimal Price,
         ProductSeoCreateDto? ProductSeo
     );
 
     public record ProductUpdateDto(
         string? Name,
-        List<int>? TagIds,
-        int? CategoryId,
+        List<string>? TagNames,
+        string? CategoryName,
         decimal? Price,
         ProductSeoUpdateDto? ProductSeo
     );
