@@ -1,4 +1,4 @@
-﻿namespace StoreApi.Models.Identity
+﻿namespace StoreApi.Constants
 {
     public static class UserRoles
     {

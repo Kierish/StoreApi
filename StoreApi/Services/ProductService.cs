@@ -1,11 +1,13 @@
-﻿using StoreApi.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using StoreApi.Data;
 using StoreApi.DTOs;
-using StoreApi.Mappers;
 using StoreApi.Exceptions;
+using StoreApi.Helpers;
 using StoreApi.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
-using StoreApi.Models.Store;
 using StoreApi.Interfaces.Services;
+using StoreApi.Mappers;
+using StoreApi.Models.Store;
+using System.Security.Cryptography;
 
 namespace StoreApi.Services
 {
@@ -18,11 +20,17 @@ namespace StoreApi.Services
             _repo = repo;
         }
 
-        public async Task<List<ProductReadDto>> GetAllAsync()
-        {
-            var products = await _repo.GetListAllProductsAsync();
+        public async Task<PagedList<ProductReadDto>> GetAllAsync(PageParameters pageParameters)
+        {   
+            var pagedProducts = await _repo.GetListProductsPerPageAsync(pageParameters);
+            
+            var dtos = pagedProducts.Items.Select(p => p.ToReadDto()).ToList();
 
-            return products.Select(p => p.ToReadDto()).ToList();
+            return new PagedList<ProductReadDto>(
+                dtos,
+                pagedProducts.TotalCount,
+                pagedProducts.Page,
+                pagedProducts.PageSize);
         }
         public async Task<ProductReadDto?> GetByIdAsync(Guid id)
         {

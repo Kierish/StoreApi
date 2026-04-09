@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using StoreApi.Constants;
 using StoreApi.DTOs;
 using StoreApi.Exceptions;
-using Microsoft.AspNetCore.Authorization;
-using StoreApi.Models.Identity;
-using StoreApi.Interfaces.Services;
 using StoreApi.Filters;
+using StoreApi.Interfaces.Services;
+using System.Text.Json;
 
 namespace StoreApi.Controllers
 {
@@ -20,9 +21,22 @@ namespace StoreApi.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<ProductReadDto>>> GetProducts()
+        public async Task<ActionResult<ProductReadDto>> GetProducts([FromQuery] PageParameters pageParameters)
         {
-            return Ok(await _service.GetAllAsync());
+            var pageProducts = await _service.GetAllAsync(pageParameters);
+
+            var metadata = new
+            {
+                pageProducts.TotalCount,
+                pageProducts.PageSize,
+                pageProducts.Page,
+                pageProducts.HasNextPage,
+                pageProducts.HasPreviousPage
+            };
+
+            Response.Headers["X-Pagination"] = JsonSerializer.Serialize(metadata);
+
+            return Ok(pageProducts.Items);
         }
 
         [HttpGet("{id}")]
@@ -37,7 +51,7 @@ namespace StoreApi.Controllers
         [HttpPost]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [ServiceFilter(typeof(ValidationFilter<ProductCreateDto>))]
-        public async Task<ActionResult<ProductReadDto>> AddProduct(ProductCreateDto dto)
+        public async Task<ActionResult<ProductReadDto>> AddProduct([FromBody] ProductCreateDto dto)
         {
             if (dto is null)
                 throw new BadRequestException("Bad data.");
@@ -50,7 +64,7 @@ namespace StoreApi.Controllers
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         [ServiceFilter(typeof(ValidationFilter<ProductUpdateDto>))]
-        public async Task<IActionResult> UpdateProduct(Guid id, ProductUpdateDto dto)
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto dto)
         {
             if (dto is null)
                 throw new BadRequestException("Bad data.");

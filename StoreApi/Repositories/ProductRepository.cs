@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StoreApi.Data;
+using StoreApi.DTOs;
+using StoreApi.Helpers;
 using StoreApi.Interfaces.Repositories;
 using StoreApi.Models.Store;
 using System.Diagnostics.Metrics;
@@ -20,9 +22,11 @@ namespace StoreApi.Repositories
                 .Include(pr => pr.Tags);
         }
 
-        public async Task<List<Product>> GetListAllProductsAsync()
-            => await GetProductWithIncludes()
-            .ToListAsync();
+        public async Task<PagedList<Product>> GetListProductsPerPageAsync(PageParameters parameters)
+        {
+            var query = GetProductWithIncludes();
+            return await PagedList<Product>.CreateAsync(query, parameters.Page, parameters.PageSize);
+        }
 
         public async Task<Product?> GetProductByIdAsync(Guid id)
             => await GetProductWithIncludes()

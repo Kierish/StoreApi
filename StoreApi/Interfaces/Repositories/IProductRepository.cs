@@ -1,10 +1,12 @@
-﻿using StoreApi.Models.Store;
+﻿using StoreApi.DTOs;
+using StoreApi.Helpers;
+using StoreApi.Models.Store;
 
 namespace StoreApi.Interfaces.Repositories
 {
     public interface IProductRepository
     {
-        Task<List<Product>> GetListAllProductsAsync();
+        Task<PagedList<Product>> GetListProductsPerPageAsync(PageParameters parameters);
         Task<Product?> GetProductByIdAsync(Guid id);
         void AddProduct(Product product);
         Task<List<Tag>> GetTagsContainedInDto(List<string> tagNames);

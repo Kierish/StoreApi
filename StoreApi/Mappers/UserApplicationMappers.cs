@@ -1,4 +1,5 @@
-﻿using StoreApi.DTOs;
+﻿using StoreApi.Constants;
+using StoreApi.DTOs;
 using StoreApi.Models.Identity;
 
 namespace StoreApi.Mappers
