@@ -1,5 +1,5 @@
-﻿using StoreApi.DTOs;
-using StoreApi.Models.Identity;
+﻿using Domain.Entities.Identity;
+using StoreApi.DTOs;
 
 namespace StoreApi.Mappers
 {
@@ -13,7 +13,7 @@ namespace StoreApi.Mappers
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = UserRoles.Customer
+                Role = UserRoles.Customer,
             };
         }
     }

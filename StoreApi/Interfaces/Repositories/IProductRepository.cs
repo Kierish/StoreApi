@@ -1,4 +1,4 @@
-﻿using StoreApi.Models.Store;
+﻿using Domain.Entities.Store;
 
 namespace StoreApi.Interfaces.Repositories
 {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Identity.Client;
-using StoreApi.Models.Identity;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using Domain.Entities.Identity;
+using Microsoft.Identity.Client;
 
 namespace StoreApi.Interfaces.Services
 {

@@ -1,18 +1,9 @@
+using System.Text;
+using Application.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StoreApi.Data;
-using StoreApi.Exceptions;
-using StoreApi.Filters;
-using StoreApi.Interfaces.Repositories;
-using StoreApi.Interfaces.Services;
-using StoreApi.Repositories;
-using StoreApi.Services;
-using StoreApi.Settings;
-using StoreApi.Validators;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,10 +31,12 @@ builder.Services.AddScoped<IAccountSevice, AccountService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-if (jwtSettings is null 
-    || string.IsNullOrEmpty(jwtSettings.Issuer) 
+if (
+    jwtSettings is null
+    || string.IsNullOrEmpty(jwtSettings.Issuer)
     || string.IsNullOrEmpty(jwtSettings.Audience)
-    || string.IsNullOrEmpty(jwtSettings.SecretKey))
+    || string.IsNullOrEmpty(jwtSettings.SecretKey)
+)
 {
     throw new InvalidOperationException("JwtSettings missed something from configuration.");
 }
@@ -61,15 +54,15 @@ var tokenValidationParameters = new TokenValidationParameters
     ValidateLifetime = true,
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-    ClockSkew = TimeSpan.Zero
+    ClockSkew = TimeSpan.Zero,
 };
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = tokenValidationParameters;
     });
-
 
 var app = builder.Build();
 

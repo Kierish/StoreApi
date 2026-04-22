@@ -1,5 +1,5 @@
-﻿using StoreApi.DTOs;
-using StoreApi.Models.Store;
+﻿using Domain.Entities.Store;
+using StoreApi.DTOs;
 
 namespace StoreApi.Mappers
 {
@@ -11,15 +11,17 @@ namespace StoreApi.Mappers
             {
                 Name = dto.Name,
                 CategoryId = categoryId,
-                Price = dto.Price
+                Price = dto.Price,
             };
         }
+
         public static void ToEntity(this ProductUpdateDto dto, Product product, Guid? categoryId)
         {
             product.Name = dto.Name ?? product.Name;
             product.CategoryId = categoryId ?? product.CategoryId;
             product.Price = dto.Price.HasValue ? dto.Price.Value : product.Price;
         }
+
         public static ProductReadDto ToReadDto(this Product dto)
         {
             return new ProductReadDto(
@@ -29,12 +31,14 @@ namespace StoreApi.Mappers
                 dto.CategoryId,
                 dto.Category?.Name,
                 dto.Price,
-                dto.ProductSeo is not null ? new ProductSeoReadDto(
-                    dto.ProductSeo!.MetaTitle,
-                    dto.ProductSeo.MetaDescription,
-                    dto.ProductSeo.Slug,
-                    dto.ProductSeo.OpenGraphImageUrl
-                ) : null
+                dto.ProductSeo is not null
+                    ? new ProductSeoReadDto(
+                        dto.ProductSeo!.MetaTitle,
+                        dto.ProductSeo.MetaDescription,
+                        dto.ProductSeo.Slug,
+                        dto.ProductSeo.OpenGraphImageUrl
+                    )
+                    : null
             );
         }
     }
