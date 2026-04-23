@@ -1,13 +1,14 @@
-﻿using StoreApi.DTOs;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
+using Application.DTOs;
+using Application.Exceptions;
 
 namespace StoreApi.Exceptions
 {
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
-        
+
         public ExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -18,7 +19,7 @@ namespace StoreApi.Exceptions
             try
             {
                 await _next(context);
-            } 
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
@@ -49,13 +50,9 @@ namespace StoreApi.Exceptions
                     break;
             }
 
-            var response = new ErrorResponse(
-                context.Response.StatusCode,
-                message,
-                ex.StackTrace
-            );
+            var response = new ErrorResponse(context.Response.StatusCode, message, ex.StackTrace);
 
-            var json = JsonSerializer.Serialize(response);  
+            var json = JsonSerializer.Serialize(response);
 
             await context.Response.WriteAsync(json);
         }

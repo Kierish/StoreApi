@@ -1,9 +1,9 @@
-﻿using FluentValidation;
-using StoreApi.DTOs;
+﻿using Application.DTOs;
+using FluentValidation;
 
 namespace StoreApi.Validators
 {
-    public class ProductSeoCreateDtoValidator : AbstractValidator<ProductSeoCreateDto>
+    public class ProductSeoCreateDtoValidator : AbstractValidator<PageMetadataCreateDto>
     {
         public ProductSeoCreateDtoValidator()
         {
@@ -16,7 +16,7 @@ namespace StoreApi.Validators
         }
     }
 
-    public class ProductSeoUpdateDtoValidator : AbstractValidator<ProductSeoUpdateDto>
+    public class ProductSeoUpdateDtoValidator : AbstractValidator<PageMetadataUpdateDto>
     {
         public ProductSeoUpdateDtoValidator()
         {

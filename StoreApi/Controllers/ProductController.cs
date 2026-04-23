@@ -1,10 +1,10 @@
-﻿using Domain.Entities.Identity;
+﻿using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Services;
+using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
 using StoreApi.Filters;
-using StoreApi.Interfaces.Services;
 
 namespace StoreApi.Controllers
 {

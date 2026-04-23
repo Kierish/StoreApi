@@ -1,6 +1,6 @@
-﻿using StoreApi.DTOs;
+﻿using Application.DTOs;
 
-namespace StoreApi.Interfaces.Services
+namespace Application.Interfaces.Services
 {
     public interface IAccountSevice
     {

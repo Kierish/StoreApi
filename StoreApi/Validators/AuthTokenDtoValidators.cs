@@ -1,17 +1,15 @@
-﻿using FluentValidation;
-using StoreApi.DTOs;
+﻿using Application.DTOs;
+using FluentValidation;
 
 namespace StoreApi.Validators
 {
     public class AuthRequestDtoValidator : AbstractValidator<AuthRequestDto>
     {
-        public AuthRequestDtoValidator() 
+        public AuthRequestDtoValidator()
         {
-            RuleFor(d => d.RefreshToken)
-                .NotEmpty();
+            RuleFor(d => d.RefreshToken).NotEmpty();
 
-            RuleFor(d => d.JwtToken)
-                .NotEmpty();
+            RuleFor(d => d.JwtToken).NotEmpty();
         }
     }
 }
