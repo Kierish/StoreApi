@@ -1,17 +1,22 @@
-﻿namespace Application.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Application.Interfaces.Services;
+using Domain.Entities.Identity;
+using Domain.Options;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
-public class AuthService : IAuthService
+namespace Application.Services;
+
+public class AuthService(IOptions<JwtOptions> jwtOptions) : IAuthService
 {
-    private readonly JwtSettings _jwtSettings;
-
-    public AuthService(IOptions<JwtSettings> jwtOptions)
-    {
-        _jwtSettings = jwtOptions.Value;
-    }
+    private readonly JwtOptions _jwtSettings = jwtOptions.Value;
 
     public string GenerateToken(ApplicationUser user, string jti)
     {
-        var claims = new List<Claim>()
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),

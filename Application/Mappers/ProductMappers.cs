@@ -1,7 +1,7 @@
-﻿using Domain.Entities.Store;
-using StoreApi.DTOs;
+﻿using Application.DTOs;
+using Domain.Entities.Store;
 
-namespace StoreApi.Mappers
+namespace Application.Mappers
 {
     public static class ProductMappers
     {
@@ -27,16 +27,16 @@ namespace StoreApi.Mappers
             return new ProductReadDto(
                 dto.Id,
                 dto.Name,
-                dto.Tags?.Select(t => t.Name).ToList() ?? new List<string>(),
+                dto.Tags?.Select(t => t.Name).ToList() ?? [],
                 dto.CategoryId,
                 dto.Category?.Name,
                 dto.Price,
-                dto.ProductSeo is not null
-                    ? new ProductSeoReadDto(
-                        dto.ProductSeo!.MetaTitle,
-                        dto.ProductSeo.MetaDescription,
-                        dto.ProductSeo.Slug,
-                        dto.ProductSeo.OpenGraphImageUrl
+                dto.MetaData is not null
+                    ? new PageMetadataDto(
+                        dto.MetaData.MetaTitle,
+                        dto.MetaData.MetaDescription,
+                        dto.MetaData.Slug,
+                        dto.MetaData.OpenGraphImageUrl
                     )
                     : null
             );

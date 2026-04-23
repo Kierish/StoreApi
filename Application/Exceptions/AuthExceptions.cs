@@ -1,20 +1,7 @@
-﻿namespace Application.Exeptions
-{
-    public class NotFoundException : Exception
-    {
-        public NotFoundException(string message)
-            : base(message) { }
-    }
+﻿namespace Application.Exceptions;
 
-    public class BadRequestException : Exception
-    {
-        public BadRequestException(string message)
-            : base(message) { }
-    }
+public class NotFoundException(string message) : Exception(message);
 
-    public class UnauthorizedException : Exception
-    {
-        public UnauthorizedException(string message)
-            : base(message) { }
-    }
-}
+public class BadRequestException(string message) : Exception(message);
+
+public class UnauthorizedException(string message) : Exception(message);

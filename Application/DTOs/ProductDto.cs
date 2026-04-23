@@ -7,7 +7,7 @@ public record ProductReadDto(
     Guid CategoryId,
     string? CategoryName,
     decimal Price,
-    ProductSeoReadDto? ProductSeo
+    PageMetadataDto? ProductSeo
 );
 
 public record ProductCreateDto(
@@ -15,7 +15,7 @@ public record ProductCreateDto(
     List<string>? TagNames,
     string CategoryName,
     decimal Price,
-    ProductSeoCreateDto? ProductSeo
+    PageMetadataCreateDto? Metadata
 );
 
 public record ProductUpdateDto(
@@ -23,5 +23,5 @@ public record ProductUpdateDto(
     List<string>? TagNames,
     string? CategoryName,
     decimal? Price,
-    ProductSeoUpdateDto? ProductSeo
+    PageMetadataUpdateDto? Metadata
 );

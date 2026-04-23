@@ -1,8 +1,7 @@
 ﻿using System.Security.Claims;
 using Domain.Entities.Identity;
-using Microsoft.Identity.Client;
 
-namespace StoreApi.Interfaces.Services
+namespace Application.Interfaces.Services
 {
     public interface IAuthService
     {

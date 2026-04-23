@@ -1,4 +1,10 @@
-﻿namespace Application.Services;
+﻿using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Mappers;
+
+namespace Application.Services;
 
 public class ProductService : IProductService
 {
@@ -40,7 +46,7 @@ public class ProductService : IProductService
             newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagNames);
         }
 
-        newProduct.ProductSeo = dto.ProductSeo?.ToEntity();
+        newProduct.MetaData = dto.Metadata?.ToEntity();
 
         _repo.AddProduct(newProduct);
         await _repo.SaveChangesAsync();
@@ -84,15 +90,15 @@ public class ProductService : IProductService
             }
         }
 
-        if (dto.ProductSeo is { } seoDto)
+        if (dto.Metadata is { } seoDto)
         {
-            if (product.ProductSeo is { } existingSeo)
+            if (product.MetaData is { } existingSeo)
             {
                 seoDto.MapToEntity(existingSeo);
             }
             else
             {
-                product.ProductSeo = seoDto.ToEntity();
+                product.MetaData = seoDto.ToEntity();
             }
         }
 

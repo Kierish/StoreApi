@@ -1,6 +1,14 @@
-﻿namespace Application.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Mappers;
+using Domain.Entities.Identity;
 
-public class AccountService : IAccountSevice
+namespace Application.Services;
+
+public class AccountService : IAccountService
 {
     private readonly IAccountRepository _repo;
     private readonly IAuthService _authService;
@@ -23,13 +31,6 @@ public class AccountService : IAccountSevice
 
         if (!isPasswordValid)
             throw new UnauthorizedException("Invalid email or password.");
-
-        var expiredTokens = await _repo.GetUsersExpiredRefreshTokensAsync(appUser.Id);
-
-        if (expiredTokens is not null)
-        {
-            _repo.RemoveRangeRefreshTokens(expiredTokens);
-        }
 
         return await GenerateAndSaveTokensAsync(appUser);
     }

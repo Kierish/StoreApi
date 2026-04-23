@@ -1,7 +1,7 @@
-﻿using Domain.Entities.Identity;
-using StoreApi.DTOs;
+﻿using Application.DTOs;
+using Domain.Entities.Identity;
 
-namespace StoreApi.Interfaces.Repositories
+namespace Application.Interfaces.Repositories
 {
     public interface IAccountRepository
     {

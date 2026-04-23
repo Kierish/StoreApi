@@ -1,21 +1,20 @@
 ﻿namespace Application.DTOs;
 
-public record MetadataDto(
-    int Id, // Read DTOs usually have Ids
+public record PageMetadataDto(
     string MetaTitle,
     string? MetaDescription,
     string? Slug,
     string? OpenGraphImageUrl
 );
 
-public record MetadataCreateDto(
+public record PageMetadataCreateDto(
     string MetaTitle,
     string? MetaDescription,
     string? Slug,
     string? OpenGraphImageUrl
 );
 
-public record MetadataUpdateDto(
+public record PageMetadataUpdateDto(
     string? MetaTitle,
     string? MetaDescription,
     string? Slug,

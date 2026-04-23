@@ -1,15 +1,16 @@
-﻿using StoreApi.DTOs;
+﻿using Application.DTOs;
+using Domain.Entities.Store;
 
-namespace StoreApi.Mappers
+namespace Application.Mappers
 {
     public static class ProductSeoMappers
     {
-        public static ProductSeo? ToEntity(this ProductSeoCreateDto seoDto)
+        public static PageMetaData? ToEntity(this PageMetadataCreateDto seoDto)
         {
             if (seoDto == null)
                 return null;
 
-            return new ProductSeo
+            return new PageMetaData
             {
                 MetaTitle = seoDto.MetaTitle,
                 MetaDescription = seoDto.MetaDescription,
@@ -18,9 +19,9 @@ namespace StoreApi.Mappers
             };
         }
 
-        public static ProductSeo ToEntity(this ProductSeoUpdateDto seoDto)
+        public static PageMetaData ToEntity(this PageMetadataUpdateDto seoDto)
         {
-            return new ProductSeo
+            return new PageMetaData
             {
                 MetaTitle = seoDto.MetaTitle ?? "",
                 MetaDescription = seoDto.MetaDescription,
@@ -29,7 +30,7 @@ namespace StoreApi.Mappers
             };
         }
 
-        public static void MapToEntity(this ProductSeoUpdateDto seoDto, ProductSeo existingSeo)
+        public static void MapToEntity(this PageMetadataUpdateDto seoDto, PageMetaData existingSeo)
         {
             existingSeo.MetaTitle = seoDto.MetaTitle ?? existingSeo.MetaTitle;
             existingSeo.MetaDescription = seoDto.MetaDescription ?? existingSeo.MetaDescription;

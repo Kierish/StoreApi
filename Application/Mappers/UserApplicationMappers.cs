@@ -1,7 +1,7 @@
-﻿using Domain.Entities.Identity;
-using StoreApi.DTOs;
+﻿using Application.DTOs;
+using Domain.Entities.Identity;
 
-namespace StoreApi.Mappers
+namespace Application.Mappers
 {
     public static class UserApplicationMappers
     {

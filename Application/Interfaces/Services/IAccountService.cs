@@ -2,7 +2,7 @@
 
 namespace Application.Interfaces.Services
 {
-    public interface IAccountSevice
+    public interface IAccountService
     {
         Task<AuthResponseDto> LoginUserAsync(LoginDataDto dto);
         Task<AuthResponseDto> RegisterUserAsync(RegisterDataDto dto);

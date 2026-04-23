@@ -1,8 +1,8 @@
-﻿using StoreApi.DTOs;
+﻿using Application.DTOs;
 
-namespace StoreApi.Interfaces.Services
+namespace Application.Interfaces.Services
 {
-    public interface IProductService 
+    public interface IProductService
     {
         Task<List<ProductReadDto>> GetAllAsync();
         Task<ProductReadDto?> GetByIdAsync(Guid id);

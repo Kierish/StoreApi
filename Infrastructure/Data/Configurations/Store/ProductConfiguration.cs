@@ -1,4 +1,6 @@
 ﻿using Domain.Entities.Store;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations.Store
 {
@@ -20,7 +22,7 @@ namespace Infrastructure.Data.Configurations.Store
                 .HasForeignKey(pr => pr.CategoryId);
 
             builder.OwnsOne(
-                p => p.ProductSeo,
+                p => p.MetaData,
                 seoBuilder =>
                 {
                     seoBuilder.Property(s => s.MetaTitle).HasMaxLength(100);

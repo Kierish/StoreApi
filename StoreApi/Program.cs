@@ -93,8 +93,6 @@ using (var scope = app.Services.CreateScope())
 
 app.UseAuthentication();
 
-// Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

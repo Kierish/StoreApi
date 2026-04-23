@@ -1,22 +1,29 @@
-﻿using Domain.Entities.Store;
+using Domain.Entities.Store;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configurations.Store
+namespace Infrastructure.Data.Configurations.Store;
+
+public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
-    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    public void Configure(EntityTypeBuilder<Category> builder)
     {
-        public void Configure(EntityTypeBuilder<Category> builder)
-        {
-            builder.ToTable(nameof(Category));
-            builder.HasKey(c => c.Id);
+        builder.ToTable(nameof(Category));
+        builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.Name).HasMaxLength(100);
+        builder.Property(c => c.Name).HasMaxLength(100);
 
-            builder
-                .HasMany(c => c.Products)
-                .WithOne(pr => pr.Category)
-                .HasForeignKey(pr => pr.CategoryId);
-        }
+        builder
+            .HasMany(c => c.Products)
+            .WithOne(pr => pr.Category)
+            .HasForeignKey(pr => pr.CategoryId);
+
+        builder.OwnsOne(
+            c => c.MetaData,
+            seoBuilder =>
+            {
+                seoBuilder.Property(s => s.MetaTitle).HasMaxLength(100);
+            }
+        );
     }
 }
