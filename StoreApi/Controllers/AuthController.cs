@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
+﻿using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 using StoreApi.Filters;
-using StoreApi.Interfaces.Services;
 
 namespace StoreApi.Controllers
 {
@@ -10,9 +10,9 @@ namespace StoreApi.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAccountSevice _accService;
+        private readonly IAccountService _accService;
 
-        public AuthController(IAccountSevice accService) 
+        public AuthController(IAccountService accService)
         {
             _accService = accService;
         }
@@ -20,7 +20,7 @@ namespace StoreApi.Controllers
         [HttpPost("login-user")]
         [ServiceFilter(typeof(ValidationFilter<LoginDataDto>))]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDataDto dto)
-        { 
+        {
             if (dto is null)
                 throw new BadRequestException("Invalid data.");
 

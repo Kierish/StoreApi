@@ -1,0 +1,118 @@
+﻿using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Mappers;
+
+namespace Application.Services;
+
+public class ProductService : IProductService
+{
+    private readonly IProductRepository _repo;
+
+    public ProductService(IProductRepository repo)
+    {
+        _repo = repo;
+    }
+
+    public async Task<List<ProductReadDto>> GetAllAsync()
+    {
+        var products = await _repo.GetListAllProductsAsync();
+
+        return products.Select(p => p.ToReadDto()).ToList();
+    }
+
+    public async Task<ProductReadDto?> GetByIdAsync(Guid id)
+    {
+        var product = await _repo.GetProductByIdAsync(id);
+
+        if (product is null)
+            throw new NotFoundException($"Product with ID {id} was not found.");
+
+        return product.ToReadDto();
+    }
+
+    public async Task<ProductReadDto> CreateAsync(ProductCreateDto dto)
+    {
+        var categoryId = await _repo.GetCategoryIdAsync(dto.CategoryName);
+
+        if (categoryId is null)
+            throw new NotFoundException($"Category {dto.CategoryName} doesn't exist.");
+
+        var newProduct = dto.ToEntity(categoryId.Value);
+
+        if (dto.TagNames is not null)
+        {
+            newProduct.Tags = await _repo.GetTagsContainedInDto(dto.TagNames);
+        }
+
+        newProduct.MetaData = dto.Metadata?.ToEntity();
+
+        _repo.AddProduct(newProduct);
+        await _repo.SaveChangesAsync();
+
+        await _repo.ReferenceCategoryToProduct(newProduct);
+
+        return newProduct.ToReadDto();
+    }
+
+    public async Task UpdateAsync(Guid id, ProductUpdateDto dto)
+    {
+        var product = await _repo.GetProductByIdAsync(id);
+
+        if (product is null)
+            throw new NotFoundException($"Product with ID {id} was not found.");
+
+        Guid? categoryId = null;
+
+        if (dto.CategoryName is not null)
+        {
+            categoryId = await _repo.GetCategoryIdAsync(dto.CategoryName);
+
+            if (categoryId is null)
+                throw new NotFoundException($"Category {dto.CategoryName} doesn't exist.");
+        }
+
+        dto.ToEntity(product, categoryId);
+
+        if (dto.TagNames is not null)
+        {
+            if (!await _repo.IsTagIdsInDb(dto.TagNames))
+                throw new NotFoundException("Such tags do not exists.");
+
+            var newTags = await _repo.GetTagsContainedInDto(dto.TagNames);
+
+            product.Tags?.Clear();
+
+            foreach (var tag in newTags)
+            {
+                product.Tags?.Add(tag);
+            }
+        }
+
+        if (dto.Metadata is { } seoDto)
+        {
+            if (product.MetaData is { } existingSeo)
+            {
+                seoDto.MapToEntity(existingSeo);
+            }
+            else
+            {
+                product.MetaData = seoDto.ToEntity();
+            }
+        }
+
+        await _repo.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var realProduct = await _repo.GetProductByIdAsync(id);
+
+        if (realProduct is null)
+            throw new NotFoundException($"Product with ID {id} was not found.");
+
+        _repo.RemoveProduct(realProduct);
+        await _repo.SaveChangesAsync();
+    }
+}

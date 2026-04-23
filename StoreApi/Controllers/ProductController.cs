@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
+﻿using Application.DTOs;
+using Application.Exceptions;
+using Application.Interfaces.Services;
+using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
-using StoreApi.Models.Identity;
-using StoreApi.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 using StoreApi.Filters;
 
 namespace StoreApi.Controllers
@@ -14,10 +14,12 @@ namespace StoreApi.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
+
         public ProductController(IProductService service)
         {
             _service = service;
         }
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<List<ProductReadDto>>> GetProducts()

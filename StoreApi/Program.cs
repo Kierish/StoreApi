@@ -1,22 +1,18 @@
+using System.Text;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Services;
+using Domain.Options;
 using FluentValidation;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StoreApi.Data;
 using StoreApi.Exceptions;
 using StoreApi.Filters;
-using StoreApi.Interfaces.Repositories;
-using StoreApi.Interfaces.Services;
-using StoreApi.Repositories;
-using StoreApi.Services;
-using StoreApi.Settings;
-using StoreApi.Validators;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -36,19 +32,21 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-builder.Services.AddScoped<IAccountSevice, AccountService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>();
 
-if (jwtSettings is null 
-    || string.IsNullOrEmpty(jwtSettings.Issuer) 
+if (
+    jwtSettings is null
+    || string.IsNullOrEmpty(jwtSettings.Issuer)
     || string.IsNullOrEmpty(jwtSettings.Audience)
-    || string.IsNullOrEmpty(jwtSettings.SecretKey))
+    || string.IsNullOrEmpty(jwtSettings.SecretKey)
+)
 {
     throw new InvalidOperationException("JwtSettings missed something from configuration.");
 }
 
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtSettings"));
 
 var tokenValidationParameters = new TokenValidationParameters
 {
@@ -61,15 +59,15 @@ var tokenValidationParameters = new TokenValidationParameters
     ValidateLifetime = true,
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-    ClockSkew = TimeSpan.Zero
+    ClockSkew = TimeSpan.Zero,
 };
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = tokenValidationParameters;
     });
-
 
 var app = builder.Build();
 
@@ -94,8 +92,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseAuthentication();
-
-// Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 

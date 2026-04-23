@@ -1,0 +1,45 @@
+﻿using Application.DTOs;
+using Application.Interfaces.Repositories;
+using Domain.Entities.Identity;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Infrastructure.Repositories;
+
+public class AccountRepository : IAccountRepository
+{
+    private readonly AppDbContext _context;
+
+    public AccountRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<ApplicationUser?> GetUserByEmailAsync(string email) =>
+        await _context.Users.FirstOrDefaultAsync(us => us.Email == email);
+
+    public void RemoveRangeRefreshTokens(List<RefreshToken> refreshTokens) =>
+        _context.RefreshTokens.RemoveRange(refreshTokens);
+
+    public async Task<bool> IsUserExistsAsync(RegisterDataDto dto) =>
+        await _context.Users.AnyAsync(us =>
+            us.Email == dto.Email
+            || us.UserName == dto.UserName
+            || us.PhoneNumber == dto.PhoneNumber
+        );
+
+    public void AddUser(ApplicationUser user) => _context.Users.Add(user);
+
+    public void RemoveRefreshToken(RefreshToken refreshToken) =>
+        _context.RefreshTokens.Remove(refreshToken);
+
+    public void AddRefreshToken(RefreshToken refreshToken) =>
+        _context.RefreshTokens.Add(refreshToken);
+
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string refreshToken) =>
+        await _context
+            .RefreshTokens.Include(us => us.User)
+            .FirstOrDefaultAsync(t => t.Token == refreshToken);
+
+    public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+}
