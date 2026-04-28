@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StoreApi.Constants;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
-using StoreApi.Filters;
-using StoreApi.Interfaces.Services;
+using StoreApi.Common.Constants;
+using StoreApi.Common.Pagination;
+using StoreApi.DTOs.Products;
+using StoreApi.Services.Products;
 using System.Text.Json;
 
 namespace StoreApi.Controllers
@@ -12,16 +11,17 @@ namespace StoreApi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class ProductController : ControllerBase
+    public class ProductController : ApiControllerBase<ProductController>
     {
         private readonly IProductService _service;
-        public ProductController(IProductService service)
+        public ProductController(IProductService service,
+            ILogger<ProductController> logger) : base(logger) 
         {
             _service = service;
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<ProductReadDto>> GetProducts([FromQuery] PageParameters pageParameters)
+        public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetProducts([FromQuery] PageParameters pageParameters)
         {
             var pageProducts = await _service.GetAllAsync(pageParameters);
 
@@ -43,33 +43,44 @@ namespace StoreApi.Controllers
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         public async Task<ActionResult<ProductReadDto>> GetProductById(Guid id)
         {
-            var product = await _service.GetByIdAsync(id);
+            var result = await _service.GetByIdAsync(id);
 
-            return Ok(product);
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            return Ok(result.Data);
         }
 
         [HttpPost]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
-        [ServiceFilter(typeof(ValidationFilter<ProductCreateDto>))]
         public async Task<ActionResult<ProductReadDto>> AddProduct([FromBody] ProductCreateDto dto)
         {
-            if (dto is null)
-                throw new BadRequestException("Bad data.");
-
             var result = await _service.CreateAsync(dto);
 
-            return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("Product {ProductId} added successfully", result.Data!.Id);
+
+            return CreatedAtAction(nameof(GetProductById), new { id = result.Data!.Id }, result.Data);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
-        [ServiceFilter(typeof(ValidationFilter<ProductUpdateDto>))]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto dto)
         {
-            if (dto is null)
-                throw new BadRequestException("Bad data.");
+            var result = await _service.UpdateAsync(id, dto);
 
-            await _service.UpdateAsync(id, dto);
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("ProductId {ProductId} was successfully changed with data: {@ProductDto}", id, dto);
 
             return NoContent();
         }
@@ -78,7 +89,14 @@ namespace StoreApi.Controllers
         [Authorize(Roles = UserRoles.Customer + "," + UserRoles.Employee)]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            await _service.DeleteAsync(id);
+            var result = await _service.DeleteAsync(id);
+
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("ProductId {ProductId} was successfully deleted", id);
 
             return NoContent();
         }

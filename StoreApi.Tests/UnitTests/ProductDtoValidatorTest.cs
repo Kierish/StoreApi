@@ -2,9 +2,10 @@
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Moq;
-using StoreApi.DTOs;
+using StoreApi.DTOs.Products;
 using StoreApi.Models.Store;
 using StoreApi.Validators;
+using StoreApi.Validators.Products;
 using System;
 using System.Collections.Generic;
 using System.Linq;

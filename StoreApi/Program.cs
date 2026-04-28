@@ -1,30 +1,53 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using StoreApi.Data;
-using StoreApi.Exceptions;
-using StoreApi.Filters;
-using StoreApi.Interfaces.Repositories;
-using StoreApi.Interfaces.Services;
-using StoreApi.Repositories;
-using StoreApi.Services;
+using StoreApi.Infrastructure.Exceptions;
+using StoreApi.Infrastructure.Filters;
+using StoreApi.Infrastructure.Middlewares;
+using StoreApi.Repositories.Auth;
+using StoreApi.Repositories.Products;
+using StoreApi.Services.Auth;
+using StoreApi.Services.Products;
 using StoreApi.Settings;
 using StoreApi.Validators;
+using System.Globalization;
 using System.Text;
+
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
-builder.Services.AddTransient(typeof(ValidationFilter<>));
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<GlobalValidationFilter>();
+});
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
@@ -36,7 +59,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-builder.Services.AddScoped<IAccountSevice, AccountService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
@@ -73,7 +96,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -100,6 +123,9 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<LogContextMiddleware>();
+app.UseSerilogRequestLogging();
 
 app.MapControllers();
 

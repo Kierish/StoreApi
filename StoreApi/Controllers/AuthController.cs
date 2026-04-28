@@ -1,50 +1,64 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
-using StoreApi.Filters;
-using StoreApi.Interfaces.Services;
+using StoreApi.DTOs.Auth;
+using StoreApi.Services.Auth;
 
 namespace StoreApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController : ApiControllerBase<AuthController>
     {
-        private readonly IAccountSevice _accService;
+        private readonly IAccountService _accService;
 
-        public AuthController(IAccountSevice accService) 
+        public AuthController(IAccountService accService,
+            ILogger<AuthController> logger) : base(logger) 
         {
             _accService = accService;
         }
 
         [HttpPost("login-user")]
-        [ServiceFilter(typeof(ValidationFilter<LoginDataDto>))]
-        public async Task<ActionResult<AuthResponseDto>> Login(LoginDataDto dto)
-        { 
-            if (dto is null)
-                throw new BadRequestException("Invalid data.");
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDataDto dto)
+        {
+            var result = await _accService.LoginUserAsync(dto);
 
-            return Ok(await _accService.LoginUserAsync(dto));
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("User {Email} logged in successfully.", dto.Email);
+
+            return Ok(result.Data);
         }
 
         [HttpPost("register-user")]
-        [ServiceFilter(typeof(ValidationFilter<RegisterDataDto>))]
-        public async Task<ActionResult<AuthResponseDto>> Register(RegisterDataDto dto)
+        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDataDto dto)
         {
-            if (dto is null)
-                throw new BadRequestException("Invalid data.");
+            var result = await _accService.RegisterUserAsync(dto);
 
-            return Ok(await _accService.RegisterUserAsync(dto));
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("New user registered successfully with email {Email}.", dto.Email);
+
+            return Ok(result.Data);
         }
 
         [HttpPost("refresh")]
-        [ServiceFilter(typeof(ValidationFilter<AuthRequestDto>))]
-        public async Task<ActionResult<AuthResponseDto>> RefreshToken(AuthRequestDto dto)
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] AuthRequestDto dto)
         {
-            if (dto is null)
-                throw new BadRequestException("Invalid data.");
+            var result = await _accService.RefreshTokenAsync(dto);
 
-            return Ok(await _accService.RefreshTokenAsync(dto));
+            if (!result.IsSuccess)
+            {
+                return HandleFailure(result);
+            }
+
+            _logger.LogInformation("Tokens refreshed successfully.");
+
+            return Ok(result.Data);
         }
     }
 }

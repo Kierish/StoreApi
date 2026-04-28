@@ -1,23 +1,17 @@
 ﻿using AutoFixture;
 using Moq;
-using StoreApi.DTOs;
-using StoreApi.Exceptions;
-using StoreApi.Interfaces.Repositories;
-using StoreApi.Interfaces.Services;
+using StoreApi.Common.Constants;
+using StoreApi.DTOs.Products;
 using StoreApi.Models.Store;
-using StoreApi.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StoreApi.Repositories.Products;
+using StoreApi.Services.Products; 
 
 namespace StoreApi.Tests.UnitTests
 {
     public class ProductServiceTest
     {
         [Fact]
-        public async Task GetByIdAsync_WhenRepositoryReturnNull_ThrowNotFoundException()
+        public async Task GetByIdAsync_WhenRepositoryReturnNull_ReturnsFailureResult() 
         {
             var mockRepo = new Mock<IProductRepository>();
             var myGuid = Guid.NewGuid();
@@ -26,49 +20,52 @@ namespace StoreApi.Tests.UnitTests
 
             var sut = new ProductService(mockRepo.Object);
 
-            await Assert.ThrowsAsync<NotFoundException>(() => sut.GetByIdAsync(myGuid));
+            var result = await sut.GetByIdAsync(myGuid);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorType.NotFound, result.Error.Type);
 
             mockRepo.Verify(s => s.GetProductByIdAsync(myGuid), Times.Once);
-            mockRepo.Verify(s => s.SaveChangesAsync(), Times.Never);
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenRepositoryReturnNull_ThrowNotFoundException()
+        public async Task DeleteAsync_WhenProductExists_ReturnsSuccessResult() 
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
-            var tergetId = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
+
             var existingProduct = fixture.Build<Product>()
-                .With(p => p.Id, tergetId)
+                .With(p => p.Id, targetId)
                 .With(p => p.Price, 10.0m)
                 .Without(p => p.Tags)
                 .Without(p => p.Category)
                 .Without(p => p.ProductSeo).Create();
 
-            mockRepo.Setup(s => s.GetProductByIdAsync(tergetId))
+            mockRepo.Setup(s => s.GetProductByIdAsync(targetId))
                 .ReturnsAsync(existingProduct);
+
             var sut = new ProductService(mockRepo.Object);
 
-            await sut.DeleteAsync(tergetId);
+            var result = await sut.DeleteAsync(targetId);
+
+            Assert.True(result.IsSuccess);
 
             mockRepo.Verify(s => s.RemoveProduct(existingProduct), Times.Once);
             mockRepo.Verify(s => s.SaveChangesAsync(), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateAsync_WhenTagsNotContainedInDb_ThrowNotFoundException()
+        public async Task UpdateAsync_WhenTagsNotContainedInDb_ReturnsFailureResult() 
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
             var myGuid = Guid.NewGuid();
+
             var existingProduct = fixture.Build<Product>()
                 .With(p => p.Id, myGuid)
                 .With(p => p.Price, 10.0m)
-                .With(p => p.Tags, new List<Tag>()
-                {
-                    new Tag { Name = "Name1" },
-                    new Tag { Name = "Name2" }
-                })
+                .With(p => p.Tags, new List<Tag> { new Tag { Name = "Name1" }, new Tag { Name = "Name2" } })
                 .Without(p => p.Category)
                 .Without(p => p.ProductSeo).Create();
 
@@ -79,14 +76,18 @@ namespace StoreApi.Tests.UnitTests
                 TagNames: new List<string>() { "Name2", "Name3" }, null, null, null);
 
             mockRepo.Setup(s => s.GetTagsContainedInDto(changedProductDto.TagNames!))
-                .ReturnsAsync(new List<Tag>()
-                {
-                    new Tag { Name = "Name2" }
-                });
+                .ReturnsAsync(new List<Tag>() { new Tag { Name = "Name2" } });
+
+            mockRepo.Setup(s => s.IsTagIdsInDb(changedProductDto.TagNames!))
+                .ReturnsAsync(false);
 
             var sut = new ProductService(mockRepo.Object);
 
-            await Assert.ThrowsAsync<NotFoundException>(() => sut.UpdateAsync(myGuid, changedProductDto));
+            var result = await sut.UpdateAsync(myGuid, changedProductDto);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("Tags.NotFound", result.Error.Code);
+
             mockRepo.Verify(s => s.SaveChangesAsync(), Times.Never);
         }
     }

@@ -1,15 +1,10 @@
 ﻿using FluentAssertions;
-using StoreApi.Constants;
-using StoreApi.DTOs;
-using StoreApi.Mappers;
+using StoreApi.Common.Constants;
+using StoreApi.Common.Mappers.Auth;
+using StoreApi.Common.Mappers.Products;
+using StoreApi.DTOs.Auth;
 using StoreApi.Models.Identity;
 using StoreApi.Models.Store;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StoreApi.Tests.UnitTests
 {

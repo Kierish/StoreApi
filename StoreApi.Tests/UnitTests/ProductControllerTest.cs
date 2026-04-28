@@ -1,16 +1,18 @@
 ﻿using AutoFixture;
-using StoreApi.DTOs;
 using Microsoft.AspNetCore.Components.Forms;
-using StoreApi.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+using StoreApi.Common.Primitives;
+using StoreApi.Controllers;
+using StoreApi.DTOs.Products;
+using StoreApi.Services;
+using StoreApi.Services.Products;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Moq;
-using StoreApi.Services;
-using StoreApi.Controllers;
-using Microsoft.AspNetCore.Mvc;
 
 namespace StoreApi.Tests.UnitTests
 {
@@ -25,9 +27,11 @@ namespace StoreApi.Tests.UnitTests
             var mockService = new Mock<IProductService>();
 
             mockService.Setup(s => s.CreateAsync(inputDto))
-                .ReturnsAsync(returnedDto);
+                .ReturnsAsync(Result<ProductReadDto>.Success(returnedDto));
 
-            var controller = new ProductController(mockService.Object);
+            var mockLogger = new Mock<ILogger<ProductController>>();
+
+            var controller = new ProductController(mockService.Object, mockLogger.Object);
 
             var actionResult = await controller.AddProduct(inputDto);
 
