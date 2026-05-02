@@ -1,14 +1,17 @@
 using FluentValidation;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using StoreApi.Data;
 using StoreApi.Infrastructure.Exceptions;
 using StoreApi.Infrastructure.Filters;
 using StoreApi.Infrastructure.Middlewares;
+using StoreApi.Infrastructure.Swagger;
 using StoreApi.Repositories.Auth;
 using StoreApi.Repositories.Products;
 using StoreApi.Services.Auth;
@@ -16,6 +19,7 @@ using StoreApi.Services.Products;
 using StoreApi.Settings;
 using StoreApi.Validators;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 
 var cultureInfo = new CultureInfo("en-US");
@@ -48,6 +52,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationRulesToSwagger();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
@@ -82,6 +87,7 @@ var tokenValidationParameters = new TokenValidationParameters
     ValidAudience = jwtSettings.Audience,
 
     ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
     ClockSkew = TimeSpan.Zero
@@ -92,6 +98,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = tokenValidationParameters;
     });
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Store Management API",
+        Version = "v1",
+        Description = "A production-grade REST API for store management."
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization", 
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",            
+        BearerFormat = "JWT",              
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token."
+    });
+
+    options.OperationFilter<AuthOperationFilter>();
+    options.OperationFilter<GlobalResponsesOperationFilter>();
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 
 var app = builder.Build();
@@ -116,11 +149,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
+
 app.UseAuthentication();
 
 // Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

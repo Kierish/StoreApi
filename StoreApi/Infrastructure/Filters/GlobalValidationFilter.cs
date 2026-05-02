@@ -24,8 +24,8 @@ namespace StoreApi.Infrastructure.Filters
 
                 if (validator is not null)
                 {
-                    var validatioContext = new ValidationContext<object>(argument);
-                    var validationResult = await validator.ValidateAsync(validatioContext);
+                    var validationContext = new ValidationContext<object>(argument);
+                    var validationResult = await validator.ValidateAsync(validationContext);
 
                     if (!validationResult.IsValid)
                     {

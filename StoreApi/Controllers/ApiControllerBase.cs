@@ -8,6 +8,8 @@ namespace StoreApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public class ApiControllerBase<T> : ControllerBase where T : ApiControllerBase<T>
     {
         protected readonly ILogger<T> _logger;
