@@ -9,10 +9,14 @@ namespace StoreApi.Infrastructure.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var problemDetailsSchema = context.SchemaGenerator
+            var standardSchema = context.SchemaGenerator
                 .GenerateSchema(typeof(ProblemDetails), context.SchemaRepository);
 
-            OpenApiMediaType MediaType() => new OpenApiMediaType { Schema = problemDetailsSchema };
+            var validationSchema = context.SchemaGenerator
+                .GenerateSchema(typeof(HttpValidationProblemDetails), context.SchemaRepository);
+
+            var standardContent = new OpenApiMediaType { Schema = standardSchema };
+            var validationContent = new OpenApiMediaType { Schema = validationSchema };
 
             var hasAuthorize = context.MethodInfo.DeclaringType!.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() ||
                                context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any();
@@ -22,11 +26,15 @@ namespace StoreApi.Infrastructure.Swagger
 
             if (hasAuthorize && !allowAnonymous)
             {
-                operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Unauthorized - Valid JWT required.",
-                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = MediaType() }
+                operation.Responses.TryAdd("401", new OpenApiResponse
+                {
+                    Description = "Unauthorized - Valid JWT required.",
+                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = standardContent }
                 });
-                operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Forbidden - User lacks required roles.",
-                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = MediaType() }
+                operation.Responses.TryAdd("403", new OpenApiResponse
+                {
+                    Description = "Forbidden - User lacks required roles.",
+                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = standardContent }
                 });
             }
 
@@ -35,8 +43,10 @@ namespace StoreApi.Infrastructure.Swagger
 
             if (hasFromBody)
             {
-                operation.Responses.TryAdd("400", new OpenApiResponse { Description = "Bad Request - Validation failed.",
-                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = MediaType() }
+                operation.Responses.TryAdd("400", new OpenApiResponse
+                {
+                    Description = "Bad Request - Validation failed.",
+                    Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = validationContent }
                 });
             }
         }

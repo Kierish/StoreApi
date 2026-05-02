@@ -50,7 +50,11 @@ namespace StoreApi.Repositories.Products
         }
 
         public void RemoveProduct(Product product)
-            => _context.Products.Remove(product);
+        {
+            product.IsDeleted = true;
+            product.DeletedAt = DateTime.UtcNow;
+        }
+
 
         public async Task<Guid?> GetCategoryIdAsync(string categoryName) 
             => await _context.Categories

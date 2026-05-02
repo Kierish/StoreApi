@@ -87,7 +87,9 @@ namespace StoreApi.Migrations
                     ProductSeo_MetaTitle = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ProductSeo_MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductSeo_Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductSeo_OpenGraphImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ProductSeo_OpenGraphImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {

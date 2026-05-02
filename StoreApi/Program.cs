@@ -68,8 +68,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-if (jwtSettings is null 
-    || string.IsNullOrEmpty(jwtSettings.Issuer) 
+if (jwtSettings is null
+    || string.IsNullOrEmpty(jwtSettings.Issuer)
     || string.IsNullOrEmpty(jwtSettings.Audience)
     || string.IsNullOrEmpty(jwtSettings.SecretKey))
 {
@@ -110,10 +110,10 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization", 
+        Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",            
-        BearerFormat = "JWT",              
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Enter your JWT token."
     });

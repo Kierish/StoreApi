@@ -11,6 +11,8 @@ namespace StoreApi.Data.Configurations.Store
             builder.ToTable(nameof(Product));
             builder.HasKey(pr => pr.Id);
 
+            builder.HasQueryFilter(pr => !pr.IsDeleted);
+
             builder.Property(pr => pr.Name).HasMaxLength(100);
             builder.Property(pr => pr.Price).HasPrecision(18, 2);
 

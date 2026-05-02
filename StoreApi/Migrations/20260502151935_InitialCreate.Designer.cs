@@ -12,7 +12,7 @@ using StoreApi.Data;
 namespace StoreApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260313131935_InitialCreate")]
+    [Migration("20260502151935_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -154,6 +154,12 @@ namespace StoreApi.Migrations
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
