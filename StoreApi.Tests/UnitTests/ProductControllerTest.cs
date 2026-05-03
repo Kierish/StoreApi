@@ -1,18 +1,11 @@
-﻿using AutoFixture;
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Application.DTOs.Products;
+using Application.Interfaces.Services;
+using AutoFixture;
+using Domain.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using StoreApi.Common.Primitives;
 using StoreApi.Controllers;
-using StoreApi.DTOs.Products;
-using StoreApi.Services;
-using StoreApi.Services.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StoreApi.Tests.UnitTests
 {

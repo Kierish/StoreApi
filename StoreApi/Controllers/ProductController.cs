@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Application.DTOs.Products;
+using Application.Interfaces.Services;
+using Application.Pagination;
+using Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StoreApi.Common.Constants;
-using StoreApi.Common.Pagination;
-using StoreApi.DTOs.Products;
-using StoreApi.Services.Products;
 using System.Text.Json;
 
 namespace StoreApi.Controllers

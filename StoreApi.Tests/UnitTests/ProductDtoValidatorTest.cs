@@ -1,16 +1,9 @@
-﻿using AutoFixture;
+﻿using Application.DTOs.Products;
+using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using Moq;
-using StoreApi.DTOs.Products;
-using StoreApi.Models.Store;
-using StoreApi.Validators;
 using StoreApi.Validators.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StoreApi.Tests.UnitTests
 {

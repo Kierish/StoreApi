@@ -1,10 +1,10 @@
-﻿using FluentAssertions;
-using StoreApi.Common.Constants;
-using StoreApi.Common.Mappers.Auth;
-using StoreApi.Common.Mappers.Products;
-using StoreApi.DTOs.Auth;
-using StoreApi.Models.Identity;
-using StoreApi.Models.Store;
+﻿using Application.DTOs.Auth;
+using Domain.Constants;
+using Domain.Models.Auth;
+using Domain.Models.Products;
+using Application.Mappers.Auth;
+using Application.Mappers.Products;
+using FluentAssertions;
 
 namespace StoreApi.Tests.UnitTests
 {
@@ -31,7 +31,7 @@ namespace StoreApi.Tests.UnitTests
             var registerDto = CreateDefaultRegisterDataDto();
             var userEntity = CreateDefaultApplicationUser();
 
-            var resultDto = registerDto.ToEntity();
+            var resultDto = registerDto.ToEntity(registerDto.Password);
 
             Assert.NotNull(resultDto);
             resultDto.Should().BeEquivalentTo(userEntity, options => options

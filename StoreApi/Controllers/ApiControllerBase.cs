@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain.Constants;
+using Domain.Results;
 using Microsoft.AspNetCore.Mvc;
-using StoreApi.Common.Constants;
-using StoreApi.Common.Primitives;
-using StoreApi.DTOs;
 
 namespace StoreApi.Controllers
 {

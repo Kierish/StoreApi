@@ -1,10 +1,10 @@
-﻿using AutoFixture;
+﻿using Application.DTOs.Products;
+using Application.Repositories;
+using Application.Services;
+using AutoFixture;
+using Domain.Constants;
+using Domain.Models.Products;
 using Moq;
-using StoreApi.Common.Constants;
-using StoreApi.DTOs.Products;
-using StoreApi.Models.Store;
-using StoreApi.Repositories.Products;
-using StoreApi.Services.Products; 
 
 namespace StoreApi.Tests.UnitTests
 {
