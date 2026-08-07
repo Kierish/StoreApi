@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories
             return new PagedList<Product>(items, totalCount, page, pageSize);
         }
 
-        public async Task<Product?> GetProductByIdAsync(Guid id) =>
+        public async Task<Product?> GetProductByIdAsync(Guid id) => 
             await GetProductWithIncludes().FirstOrDefaultAsync(x => x.Id == id);
 
         public void AddProduct(Product product) => _context.Products.Add(product);

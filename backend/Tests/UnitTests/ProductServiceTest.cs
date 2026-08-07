@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Products;
+using Application.Interfaces.Services;
 using Application.Repositories;
 using Application.Services;
 using AutoFixture;
@@ -14,12 +15,22 @@ namespace StoreApi.Tests.UnitTests
         public async Task GetByIdAsync_WhenRepositoryReturnNull_ReturnsFailureResult()
         {
             var mockRepo = new Mock<IProductRepository>();
+            var mockCache = new Mock<ICacheService>();
             var myGuid = Guid.NewGuid();
             mockRepo
                 .Setup(s => s.GetProductByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Product?)null);
 
-            var sut = new ProductService(mockRepo.Object);
+            mockCache
+                .Setup(c => c.GetOrCreateAsync<ProductReadDto>(
+                    It.IsAny<string>(),
+                    It.IsAny<Func<Task<ProductReadDto?>>>(),
+                    It.IsAny<TimeSpan?>(),
+                    It.IsAny<CancellationToken>())) 
+                .Returns<string, Func<Task<ProductReadDto?>>, TimeSpan?, CancellationToken>(
+                    (key, factory, ttl, token) => factory());
+
+            var sut = new ProductService(mockRepo.Object, mockCache.Object);
 
             var result = await sut.GetByIdAsync(myGuid);
 
@@ -34,6 +45,7 @@ namespace StoreApi.Tests.UnitTests
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
+            var mockCache = new Mock<ICacheService>();
             var targetId = Guid.NewGuid();
 
             var existingProduct = fixture
@@ -43,11 +55,12 @@ namespace StoreApi.Tests.UnitTests
                 .Without(p => p.Tags)
                 .Without(p => p.Category)
                 .Without(p => p.MetaData)
+                .Without(p => p.Comments)
                 .Create();
 
             mockRepo.Setup(s => s.GetProductByIdAsync(targetId)).ReturnsAsync(existingProduct);
 
-            var sut = new ProductService(mockRepo.Object);
+            var sut = new ProductService(mockRepo.Object, mockCache.Object);
 
             var result = await sut.DeleteAsync(targetId);
 
@@ -62,6 +75,7 @@ namespace StoreApi.Tests.UnitTests
         {
             var fixture = new Fixture();
             var mockRepo = new Mock<IProductRepository>();
+            var mockCache = new Mock<ICacheService>();
             var myGuid = Guid.NewGuid();
 
             var existingProduct = fixture
@@ -78,6 +92,7 @@ namespace StoreApi.Tests.UnitTests
                 )
                 .Without(p => p.Category)
                 .Without(p => p.MetaData)
+                .Without(p => p.Comments)
                 .Create();
 
             mockRepo.Setup(s => s.GetProductByIdAsync(myGuid)).ReturnsAsync(existingProduct);
@@ -96,7 +111,7 @@ namespace StoreApi.Tests.UnitTests
 
             mockRepo.Setup(s => s.IsTagIdsInDb(changedProductDto.TagNames!)).ReturnsAsync(false);
 
-            var sut = new ProductService(mockRepo.Object);
+            var sut = new ProductService(mockRepo.Object, mockCache.Object);
 
             var result = await sut.UpdateAsync(myGuid, changedProductDto);
 

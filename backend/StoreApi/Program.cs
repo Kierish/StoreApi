@@ -2,6 +2,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Repositories;
 using Application.Services;
+using Application.Services.CacheService;
 using Application.Validators.Pagination;
 using FluentValidation;
 using Infrastructure.Auth;
@@ -13,9 +14,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 using StoreApi.Infrastructure.Exceptions;
 using StoreApi.Infrastructure.Filters;
 using StoreApi.Infrastructure.Middlewares;
@@ -46,6 +49,13 @@ builder.Services.AddCors(options =>
                 .WithExposedHeaders("X-Pagination");
         }
     );
+});
+
+var redisConfiguration = builder.Configuration.GetConnectionString("Redis");
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConfiguration;
+    options.InstanceName = "StoreApi_v1_";
 });
 
 builder.Services.AddProblemDetails();
@@ -103,6 +113,14 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddSingleton<CacheService>();
+
+builder.Services.AddSingleton<ICacheService>(provider =>
+    new ResilientCacheService(
+        provider.GetRequiredService<CacheService>(),
+        provider.GetRequiredService<ILogger<ResilientCacheService>>()
+    ));
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>();
 

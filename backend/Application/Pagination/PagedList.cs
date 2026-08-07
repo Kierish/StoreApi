@@ -6,17 +6,16 @@
         public int Page { get; }
         public int PageSize { get; }
         public int TotalCount { get; }
-        public int TotalPages { get; }
+        public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
         public bool HasNextPage => Page * PageSize < TotalCount;
         public bool HasPreviousPage => Page > 1;
 
-        public PagedList(IReadOnlyList<T> items, int count, int pageNumber, int pageSize)
+        public PagedList(IReadOnlyList<T> items, int totalCount, int page, int pageSize)
         {
             Items = items;
-            TotalCount = count;
+            Page = page;
             PageSize = pageSize;
-            Page = pageNumber;
-            TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+            TotalCount = totalCount;
         }
     }
 }
