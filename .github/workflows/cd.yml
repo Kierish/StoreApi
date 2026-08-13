@@ -1,0 +1,56 @@
+name: .NET Web APP CD
+
+on:
+  workflow_run:
+    workflows: [".NET Web APP CI"] 
+    types:
+      - completed
+    branches: 
+      - main
+
+jobs:
+  deploy-local:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted  
+
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Deploy and Verify
+      shell: powershell
+      run: |
+        $imageName = "storeapp-api:latest"
+        $oldImageId = docker images -q $imageName
+        Write-Output "Backup Image ID: $oldImageId"
+
+        Write-Output "Stopping old containers..."
+        docker compose down
+
+        Write-Output "Starting new build and containers..."
+        docker compose up -d --build
+
+        Write-Output "Waiting for API to initialize..."
+        Start-Sleep -Seconds 10
+
+        Write-Output "Running Health Check..."
+        $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing -ErrorAction SilentlyContinue
+
+        if ($response.StatusCode -eq 200) {
+            Write-Output "Deployment succeeded! API is healthy."
+        } else {
+            Write-Output "API is unhealthy! Initiating rollback..."
+            docker compose down
+
+            if ($oldImageId) {
+                Write-Output "Restoring previous stable build..."
+                docker tag $oldImageId $imageName
+                docker compose up -d
+            }
+            
+            exit 1
+        }
