@@ -13,7 +13,7 @@ const onRefreshed = (newToken: string) => {
 };
 
 export async function apiClient(endpoint: string, options: RequestInit = {}): Promise<Response> {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5167';
+  const baseUrl = import.meta.env.VITE_API_URL || 'https://localhost:7068';
   const { token, refreshToken } = getTokens();
 
   const headers = new Headers(options.headers);

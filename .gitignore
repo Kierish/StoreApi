@@ -380,22 +380,20 @@ pnpm-debug.log*
 **/build/
 **/out-tsc/
 
-# Local Frontend Environment Variables (Secrets)
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+# Backend Application Logs (Serilog text logs)
+**/logs/
+*.log
 
-!frontend/.env
-
-# Root Environment Variables (Do not commit actual passwords)
-.env
+# Environment Variables & Secrets (Ignore ALL .env files in ALL folders)
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
 
-# Frontend IDEs (For developers using VS Code or WebStorm for React)
+# Frontend IDEs (For developers using VS Code or WebStorm)
 .vscode/
 .idea/
-*.suo
 
-# TypeScript cache
+# TypeScript cache & EF Bundles
 *.tsbuildinfo
+**/efbundle

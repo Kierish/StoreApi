@@ -42,6 +42,7 @@ services:
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
       - ConnectionStrings__DefaultConnection=Server=db;Database=StoreDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
       - JwtSettings__SecretKey=${JWT_SECRET}
+      - AllowedOrigins__0=${FRONTEND_URL}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       db:
