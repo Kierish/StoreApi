@@ -16,6 +16,7 @@ jobs:
     env:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
 
     steps:
     - name: Checkout Code
