@@ -1,67 +1,12 @@
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Services;
-using Application.Repositories;
-using Application.Services;
-using Application.Services.CacheService;
-using Application.Validators.Pagination;
-using FluentValidation;
-using Infrastructure.Auth;
-using Infrastructure.Auth.Options;
-using Infrastructure.Data;
-using Infrastructure.Repositories;
-using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Application;
+using Infrastructure;
 using Serilog;
-using StackExchange.Redis;
-using StoreApi.Infrastructure.Exceptions;
-using StoreApi.Infrastructure.Filters;
+using StoreApi.Extensions;
 using StoreApi.Infrastructure.Middlewares;
-using StoreApi.Infrastructure.Swagger;
-using System.Globalization;
-using System.Reflection;
-using System.Text;
-
-var cultureInfo = new CultureInfo("en-US");
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var allowedOrigins =
-    builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["http://localhost:5173"];
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
-        "AllowReactApp",
-        policy =>
-        {
-            policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders("X-Pagination");
-        }
-    );
-});
-
-var redisConfiguration = builder.Configuration.GetConnectionString("Redis");
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = redisConfiguration;
-    options.InstanceName = "StoreApi_v1_";
-});
-
-builder.Services.AddProblemDetails();
-
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
+// Logging
 builder.Host.UseSerilog(
     (context, loggerConfiguration) =>
     {
@@ -69,130 +14,12 @@ builder.Host.UseSerilog(
     }
 );
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Register Layer Dependencies
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddWebServices(builder.Configuration);
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<GlobalValidationFilter>();
-});
-
-builder.Services.AddValidatorsFromAssemblyContaining<PageParametersValidator>();
-builder.Services.AddFluentValidationRulesToSwagger();
-
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
-builder.Services.AddScoped<IProductService, ProductService>();
-
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-
-builder.Services.AddScoped<ITagRepository, TagRepository>();
-
-builder.Services.AddScoped<ITagService, TagService>();
-
-builder.Services.AddScoped<ITokenProvider, TokenProvider>();
-
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-
-builder.Services.AddScoped<IAccountService, AccountService>();
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-builder.Services.AddScoped<IUserService, UserService>();
-
-builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
-
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-
-builder.Services.AddScoped<ICommentService, CommentService>();
-
-builder.Services.AddSingleton<CacheService>();
-
-builder.Services.AddSingleton<ICacheService>(provider =>
-    new ResilientCacheService(
-        provider.GetRequiredService<CacheService>(),
-        provider.GetRequiredService<ILogger<ResilientCacheService>>()
-    ));
-
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>();
-
-if (
-    jwtSettings is null
-    || string.IsNullOrEmpty(jwtSettings.Issuer)
-    || string.IsNullOrEmpty(jwtSettings.Audience)
-    || string.IsNullOrEmpty(jwtSettings.SecretKey)
-)
-{
-    throw new InvalidOperationException("JwtSettings missed something from configuration.");
-}
-
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtSettings"));
-
-var tokenValidationParameters = new TokenValidationParameters
-{
-    ValidateIssuer = true,
-    ValidIssuer = jwtSettings.Issuer,
-
-    ValidateAudience = true,
-    ValidAudience = jwtSettings.Audience,
-
-    ValidateLifetime = true,
-    ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-
-    ClockSkew = TimeSpan.Zero,
-};
-
-builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = tokenValidationParameters;
-    });
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc(
-        "v1",
-        new OpenApiInfo
-        {
-            Title = "Store Management API",
-            Version = "v1",
-            Description = "A production-grade REST API for store management.",
-        }
-    );
-
-    options.AddSecurityDefinition(
-        "Bearer",
-        new OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description = "Enter your JWT token.",
-        }
-    );
-
-    options.OperationFilter<AuthOperationFilter>();
-    options.OperationFilter<GlobalResponsesOperationFilter>();
-
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
-});
-
-builder.Services.AddHealthChecks();
-
+// Configure HTTP Request Pipeline
 var app = builder.Build();
 
 app.MapHealthChecks("/health");
