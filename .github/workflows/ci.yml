@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest 
 
+    env:
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+
     defaults:
       run:
         working-directory: ./backend
@@ -24,13 +27,16 @@ jobs:
         dotnet-version: '9.0.x' 
 
     - name: Restore dependencies
-      run: dotnet restore StoreApi/StoreApi.csproj
+      run: dotnet restore StoreApi.sln
 
     - name: Build
-      run: dotnet build StoreApi/StoreApi.csproj --no-restore --configuration Release
+      run: dotnet build StoreApi.sln --no-restore --configuration Release
 
-    - name: Test
-      run: dotnet test Tests/Tests.csproj --no-build --configuration Release --verbosity normal
+    - name: Unit Tests
+      run: dotnet test Tests/UnitTests/UnitTests.csproj --no-build --configuration Release --verbosity normal
+
+    - name: Integration Tests
+      run: dotnet test Tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --verbosity normal
 
     - name: Publish Artifact
       run: dotnet publish StoreApi/StoreApi.csproj --no-build --configuration Release --output ./publish

@@ -4,7 +4,7 @@ using Application.Mappers.Products;
 using AutoFixture;
 using FluentAssertions;
 
-namespace StoreApi.Tests.UnitTests
+namespace UnitTests.Mappers
 {
     public class ProductMappersTest
     {

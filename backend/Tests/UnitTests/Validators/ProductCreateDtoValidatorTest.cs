@@ -5,7 +5,7 @@ using FluentValidation.TestHelper;
 using NSubstitute;
 using StoreApi.Validators.Products;
 
-namespace StoreApi.Tests.UnitTests
+namespace UnitTests.Validators
 {
     public class ProductCreateDtoValidatorTest
     {

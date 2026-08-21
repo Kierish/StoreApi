@@ -9,7 +9,7 @@ using Domain.Models.Products;
 using FluentAssertions;
 using NSubstitute;
 
-namespace StoreApi.Tests.UnitTests
+namespace UnitTests.Services
 {
     public class ProductServiceTest
     {
