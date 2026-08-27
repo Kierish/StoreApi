@@ -8,7 +8,7 @@ namespace StoreApi.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class ApiControllerBase<T> : ControllerBase
+    public abstract class ApiControllerBase<T> : ControllerBase
         where T : ApiControllerBase<T>
     {
         protected readonly ILogger<T> _logger;
